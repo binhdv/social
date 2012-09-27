@@ -179,6 +179,7 @@ var UIActivity = {
         })(i);
       }
     }
+    $(document.body).find('.UserInfo').showUserInfo();
   }
 }
 
