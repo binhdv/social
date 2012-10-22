@@ -1,0 +1,4 @@
+<div class="UISpaceAccessPortlet">
+You are invited to join the space ${space} by the administrator
+<br><a>Accept</a> <a>Refuse</a></br>
+</div>

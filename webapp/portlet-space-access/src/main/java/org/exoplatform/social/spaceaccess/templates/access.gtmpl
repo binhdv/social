@@ -1,0 +1,4 @@
+<div class="UISpaceAccessPortlet">
+Restricted Area
+<br>You must be a member of the space ${space} to view this page. <a>Join</a> </br>
+</div>
