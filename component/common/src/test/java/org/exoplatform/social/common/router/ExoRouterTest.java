@@ -81,7 +81,7 @@ public class ExoRouterTest extends AbstractCommonTest {
   }
   
   public void testRouterForSpaceWikiAccess() throws Exception {
-    Route route = ExoRouter.route("wiki/group/spaces/mary-space/technical_space_access");
+    Route route = ExoRouter.route("mary-space/wiki/technical_space_access");
     
     assertRouter(route, "space.wiki.access", new HashMap<String,String>(){{
       put("spacePrettyName","mary-space");

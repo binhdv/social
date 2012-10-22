@@ -59,35 +59,48 @@ public class SpaceAccessApplicationLifecycle implements ApplicationLifecycle<Web
     LOG.info("RequestNavigationData::requestPath =" + requestPath);
     
     Route route = ExoRouter.route(requestPath);
+    if (route == null) { 
+      return;
+    }
+    
     String spacePrettyName = route.localArgs.get("spacePrettyName");
     String wikiPage = route.localArgs.get("wikiPage");
-    String appName = route.localArgs.get("appName");
+    String appName = wikiPage != null ? "wiki" : route.localArgs.get("appName");
     
     if (pcontext.getSiteType().equals(SiteType.GROUP)
         && pcontext.getSiteName().startsWith("/spaces") && spacePrettyName != null
-        && spacePrettyName.length() > 0 && appName == null) {
+        && spacePrettyName.length() > 0) {
       
       Space space = Utils.getSpaceService().getSpaceByPrettyName(spacePrettyName);
       String remoteId = Utils.getOwnerRemoteId();
       
-      processSpaceAccess(pcontext, remoteId, space);
-      processWikiSpaceAccess(pcontext, remoteId, space);
-    } else {
-      
+      if (wikiPage != null && wikiPage.length() > 0) {
+        processWikiSpaceAccess(pcontext, remoteId, space);
+      } else {
+        processSpaceAccess(pcontext, remoteId, space);
+      }
     }
   }
   
   private void processWikiSpaceAccess(PortalRequestContext pcontext, String remoteId, Space space) throws IOException {
+   
+    
+    boolean gotStatus = SpaceAccessType.SPACE_NOT_FOUND.doCheck(remoteId, space);
+    if (gotStatus) {
+      sendRedirect(pcontext, SpaceAccessType.SPACE_NOT_FOUND, null);
+      return;
+    }
+    
     //Gets Wiki Page Perma link
     //http://int.exoplatform.org/portal/intranet/wiki/group/spaces/engineering/Spec_Func_-_Wiki_Page_Permalink
-    
+    //sendRedirect to Pemanent URI
   }
   
   private void processSpaceAccess(PortalRequestContext pcontext, String remoteId, Space space) throws IOException {
     //
     boolean gotStatus = SpaceAccessType.SPACE_NOT_FOUND.doCheck(remoteId, space);
     if (gotStatus) {
-      sendRedirect(pcontext, SpaceAccessType.SPACE_NOT_FOUND, space.getPrettyName());
+      sendRedirect(pcontext, SpaceAccessType.SPACE_NOT_FOUND, null);
       return;
     }
     
@@ -138,8 +151,8 @@ public class SpaceAccessApplicationLifecycle implements ApplicationLifecycle<Web
     String url = Utils.getURI(SpaceAccessType.NODE_REDIRECT);
     LOG.info(type.toString());
     
-    pcontext.setAttribute(SpaceAccessType.ACCESSED_TYPE_KEY, type);
-    pcontext.setAttribute(SpaceAccessType.ACCESSED_SPACE_NAME_KEY, spacePrettyName);
+    pcontext.getRequest().getSession().setAttribute(SpaceAccessType.ACCESSED_TYPE_KEY, type);
+    pcontext.getRequest().getSession().setAttribute(SpaceAccessType.ACCESSED_SPACE_NAME_KEY, spacePrettyName);
     
     
     pcontext.sendRedirect(url);
