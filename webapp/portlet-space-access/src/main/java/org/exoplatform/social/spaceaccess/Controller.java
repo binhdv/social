@@ -29,6 +29,9 @@ import juzu.View;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
 import org.exoplatform.social.core.space.SpaceAccessType;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.spaceaccess.providers.ServiceProvider;
 import org.exoplatform.social.spaceaccess.templates.access;
 import org.exoplatform.social.spaceaccess.templates.wikilink;
 import org.exoplatform.social.spaceaccess.templates.invited;
@@ -38,6 +41,7 @@ import org.exoplatform.social.spaceaccess.templates.requestOK;
 import org.exoplatform.social.spaceaccess.templates.requestNotFound;
 import org.exoplatform.social.spaceaccess.templates.requestClosed;
 import org.exoplatform.social.spaceaccess.templates.spaceFound;
+import org.exoplatform.social.webui.Utils;
 import org.exoplatform.webui.application.WebuiRequestContext;
 
 /**
@@ -58,6 +62,8 @@ public class Controller {
   @Inject @Path("spaceFound.gtmpl") spaceFound spaceFound;
   @Inject @Path("wikilink.gtmpl") wikilink wikilink;
   
+  @Inject SpaceService spaceService;
+  
   @View
   public void index() throws Exception {
     PortalRequestContext pcontext = (PortalRequestContext)(WebuiRequestContext.getCurrentInstance());
@@ -65,19 +71,19 @@ public class Controller {
     String space = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_SPACE_NAME_KEY).toString();
     if ("social.space.access.join-space".equals(status))
       access(space);
-    if ("social.space.access.space-not-found".equals(status))
+    else if ("social.space.access.space-not-found".equals(status))
       requestNotFound();
-    if ("social.space.access.closed-space".equals(status))
+    else if ("social.space.access.closed-space".equals(status))
       requestClosed(space);
-     if ("social.space.access.request-join-space".equals(status))
+    else if ("social.space.access.request-join-space".equals(status))
       request(space);
-    if ("social.space.access.requested-join-space".equals(status))
+    else if ("social.space.access.requested-join-space".equals(status))
       requested(space);
-    if ("social.space.access.invited-space".equals(status))
+    else if ("social.space.access.invited-space".equals(status))
       invited(space);
-    if ("social.space.access.not-access-wiki-space".equals(status))
+    else if ("social.space.access.not-access-wiki-space".equals(status))
       wikilink(space);
-    //else spaceFound(space);
+    else spaceFound(space);
   }
   
   @View
@@ -146,6 +152,22 @@ public class Controller {
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("space", space);
     wikilink.render(parameters);
+  }
+  
+  @Action
+  public Response.Redirect join(String space) {
+    String remoteId = Utils.getOwnerRemoteId();
+    Space sp = spaceService.getSpaceByPrettyName(space);
+    spaceService.addMember(sp, remoteId);
+    return Response.redirect("http://localhost:8080/socialdemo/g/:spaces:"+space+"/"+space);
+  }
+  
+  @Action
+  public Response requestToJoin(String space) {
+    String remoteId = Utils.getOwnerRemoteId();
+    Space sp = spaceService.getSpaceByPrettyName(space);
+    spaceService.addInvitedUser(sp, remoteId);
+    return Controller_.requestOK(space);
   }
   
 }
