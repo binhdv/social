@@ -33,14 +33,11 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.spaceaccess.providers.ServiceProvider;
 import org.exoplatform.social.spaceaccess.templates.access;
-import org.exoplatform.social.spaceaccess.templates.wikilink;
 import org.exoplatform.social.spaceaccess.templates.invited;
 import org.exoplatform.social.spaceaccess.templates.request;
-import org.exoplatform.social.spaceaccess.templates.requested;
 import org.exoplatform.social.spaceaccess.templates.requestOK;
-import org.exoplatform.social.spaceaccess.templates.requestNotFound;
+import org.exoplatform.social.spaceaccess.templates.requestNOK;
 import org.exoplatform.social.spaceaccess.templates.requestClosed;
-import org.exoplatform.social.spaceaccess.templates.spaceFound;
 import org.exoplatform.social.webui.Utils;
 import org.exoplatform.webui.application.WebuiRequestContext;
 
@@ -55,119 +52,114 @@ public class Controller {
   @Inject @Path("access.gtmpl") access access;
   @Inject @Path("invited.gtmpl") invited invited;
   @Inject @Path("request.gtmpl") request request;
-  @Inject @Path("requested.gtmpl") requested requested;
   @Inject @Path("requestOK.gtmpl") requestOK requestOK;
-  @Inject @Path("requestNotFound.gtmpl") requestNotFound requestNotFound;
+  @Inject @Path("requestNOK.gtmpl") requestNOK requestNOK;
   @Inject @Path("requestClosed.gtmpl") requestClosed requestClosed;
-  @Inject @Path("spaceFound.gtmpl") spaceFound spaceFound;
-  @Inject @Path("wikilink.gtmpl") wikilink wikilink;
   
   @Inject SpaceService spaceService;
+  
+  static private final String WIKI_LINK = "http://int.exoplatform.org/portal/intranet/wiki/group/spaces/engineering/Spec_Func_-_Wiki_Page_Permalink";
+  static private final String ALL_SPACE_LINK = "http://localhost:8080/socialdemo/classic/all-spaces";
   
   @View
   public void index() throws Exception {
     PortalRequestContext pcontext = (PortalRequestContext)(WebuiRequestContext.getCurrentInstance());
-    String status = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_TYPE_KEY).toString();
-    String space = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_SPACE_NAME_KEY).toString();
-    if ("social.space.access.join-space".equals(status))
-      access(space);
-    else if ("social.space.access.space-not-found".equals(status))
-      requestNotFound();
-    else if ("social.space.access.closed-space".equals(status))
-      requestClosed(space);
-    else if ("social.space.access.request-join-space".equals(status))
-      request(space);
-    else if ("social.space.access.requested-join-space".equals(status))
-      requested(space);
-    else if ("social.space.access.invited-space".equals(status))
-      invited(space);
-    else if ("social.space.access.not-access-wiki-space".equals(status))
-      wikilink(space);
-    else spaceFound(space);
+    Object o = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_SPACE_NAME_KEY);
+    if (o == null) {
+      requestNOK();
+    }
+    else {
+      String status = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_TYPE_KEY).toString();
+      String spaceName = o.toString();
+      if ("social.space.access.join-space".equals(status))
+        access(spaceName);
+      else if ("social.space.access.closed-space".equals(status))
+        requestClosed(spaceName);
+      else if ("social.space.access.request-join-space".equals(status))
+        request(spaceName);
+      else if ("social.space.access.requested-join-space".equals(status))
+        requestOK(spaceName);
+      else if ("social.space.access.invited-space".equals(status))
+        invited(spaceName);
+      else if ("social.space.access.not-access-wiki-space".equals(status))
+        wikilink();
+      else spaceFound(spaceName);
+    }
   }
   
   @View
-  public void access(String space) throws Exception {
+  public void access(String spaceName) throws Exception {
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
+    parameters.put("spaceName", spaceName);
     access.render(parameters);
   }
   
   @View
-  public void invited(String space) throws Exception {
+  public void invited(String spaceName) throws Exception {
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
+    parameters.put("spaceName", spaceName);
     invited.render(parameters);
   }
   
   @View
-  public void requested(String space) throws Exception {
+  public void request(String spaceName) throws Exception {
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
-    requested.render(parameters);
-  }
-  
-  @View
-  public void request(String space) throws Exception {
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
+    parameters.put("spaceName", spaceName);
     request.render(parameters);
   }
   
   @View
-  public void requestOK(String space) throws Exception {
+  public void requestOK(String spaceName) throws Exception {
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
+    parameters.put("spaceName", spaceName);
     requestOK.render(parameters);
   }
   
   @View
-  public void requestNotFound(String space) throws Exception {
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
-    requestNotFound.render(parameters);
+  public void requestNOK() throws Exception {
+    requestNOK.render();
   }
   
   @View
-  public void requestNotFound() throws Exception {
-    requestNotFound.render();
-  }
-  
-  @View
-  public void requestClosed(String space) throws Exception {
+  public void requestClosed(String spaceName) throws Exception {
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
+    parameters.put("spaceName", spaceName);
     requestClosed.render(parameters);
   }
   
   @View
-  public void spaceFound(String space) throws Exception {
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
-    spaceFound.render(parameters);
+  public Response.Redirect spaceFound(String spaceName) throws Exception {
+    Space space = spaceService.getSpaceByPrettyName(spaceName);
+    return Response.redirect(Utils.getSpaceHomeURL(space));
   }
   
   @View
-  public void wikilink(String space) throws Exception {
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put("space", space);
-    wikilink.render(parameters);
+  public Response.Redirect wikilink() throws Exception {
+    return Response.redirect(WIKI_LINK);
   }
   
   @Action
-  public Response.Redirect join(String space) {
+  public Response.Redirect join(String spaceName) {
     String remoteId = Utils.getOwnerRemoteId();
-    Space sp = spaceService.getSpaceByPrettyName(space);
-    spaceService.addMember(sp, remoteId);
-    return Response.redirect("http://localhost:8080/socialdemo/g/:spaces:"+space+"/"+space);
+    Space space = spaceService.getSpaceByPrettyName(spaceName);
+    spaceService.addMember(space, remoteId);
+    return Response.redirect(Utils.getSpaceHomeURL(space));
   }
   
   @Action
-  public Response requestToJoin(String space) {
+  public Response requestToJoin(String spaceName) {
     String remoteId = Utils.getOwnerRemoteId();
-    Space sp = spaceService.getSpaceByPrettyName(space);
-    spaceService.addInvitedUser(sp, remoteId);
-    return Controller_.requestOK(space);
+    Space space = spaceService.getSpaceByPrettyName(spaceName);
+    spaceService.addPendingUser(space, remoteId);
+    return Controller_.requestOK(spaceName);
+  }
+  
+  @Action
+  public Response.Redirect refuse(String spaceName) {
+    String remoteId = Utils.getOwnerRemoteId();
+    Space space = spaceService.getSpaceByPrettyName(spaceName);
+    spaceService.removeInvitedUser(space, remoteId);
+    return Response.redirect(ALL_SPACE_LINK);
   }
   
 }

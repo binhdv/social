@@ -1,4 +1,6 @@
+#{param name=spaceName/}
+
 <div class="UISpaceAccessPortlet">
-You are invited to join the space ${space} by the administrator
-<br><a>Accept</a> <a>Refuse</a></br>
+You are invited to join the space ${spaceName} by the administrator
+<br><a href="@{join(spaceName=spaceName)}">Accept</a> <a href="@{refuse(spaceName=spaceName)}">Refuse</a></br>
 </div>

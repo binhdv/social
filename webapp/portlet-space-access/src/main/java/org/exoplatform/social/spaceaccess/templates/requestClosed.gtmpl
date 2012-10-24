@@ -1,4 +1,4 @@
 <div class="UISpaceAccessPortlet">
 Access Denied.
-<br>You must be invited by an administrator to the ${space} space  to access this page.</br>
+<br>You must be invited by an administrator to the ${spaceName} space  to access this page.</br>
 </div>

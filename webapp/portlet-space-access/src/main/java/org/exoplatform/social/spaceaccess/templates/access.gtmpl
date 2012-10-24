@@ -1,6 +1,6 @@
-#{param name=space/}
+#{param name=spaceName/}
 
 <div class="UISpaceAccessPortlet">
 Restricted Area
-<br>You must be a member of the space ${space} to view this page. <a href="@{join(space=space)}">Join</a> </br>
+<br>You must be a member of the space ${spaceName} to view this page. <a href="@{join(spaceName=spaceName)}">Join</a> </br>
 </div>
