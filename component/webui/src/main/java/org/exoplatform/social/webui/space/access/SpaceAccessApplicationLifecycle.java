@@ -97,10 +97,18 @@ public class SpaceAccessApplicationLifecycle implements ApplicationLifecycle<Web
   }
   
   private void processSpaceAccess(PortalRequestContext pcontext, String remoteId, Space space) throws IOException {
+    
+    
     //
     boolean gotStatus = SpaceAccessType.SPACE_NOT_FOUND.doCheck(remoteId, space);
     if (gotStatus) {
       sendRedirect(pcontext, SpaceAccessType.SPACE_NOT_FOUND, null);
+      return;
+    }
+    
+    //special case when remoteId is super administrator and allow to access
+    gotStatus = SpaceAccessType.SUPER_ADMINISTRATOR.doCheck(remoteId, space);
+    if (gotStatus) {
       return;
     }
     
@@ -138,12 +146,7 @@ public class SpaceAccessApplicationLifecycle implements ApplicationLifecycle<Web
       return;
     }
 
-    //
-    gotStatus = SpaceAccessType.NOT_ADMINISTRATOR.doCheck(remoteId, space);
-    if (gotStatus) {
-      sendRedirect(pcontext, SpaceAccessType.NOT_ADMINISTRATOR, space.getPrettyName());
-      return;
-    }
+    
   }
   
   private void sendRedirect(PortalRequestContext pcontext, SpaceAccessType type, String spacePrettyName) throws IOException {

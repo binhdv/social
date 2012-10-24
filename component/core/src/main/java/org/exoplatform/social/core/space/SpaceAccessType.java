@@ -37,7 +37,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
  */
 public enum SpaceAccessType {
 
-  NOT_ADMINISTRATOR("social.space.access.not-administrator") {
+  SUPER_ADMINISTRATOR("social.space.access.administrator") {
 
     @Override
     public boolean doCheck(String remoteId, Space space) {
