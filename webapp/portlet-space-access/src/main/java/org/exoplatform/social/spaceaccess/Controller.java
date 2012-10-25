@@ -26,6 +26,7 @@ import juzu.Path;
 import juzu.Response;
 import juzu.View;
 
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.application.RequestNavigationData;
 import org.exoplatform.social.core.space.SpaceAccessType;
@@ -59,18 +60,20 @@ public class Controller {
   @Inject SpaceService spaceService;
   
   static private final String WIKI_LINK = "http://int.exoplatform.org/portal/intranet/wiki/group/spaces/engineering/Spec_Func_-_Wiki_Page_Permalink";
-  static private final String ALL_SPACE_LINK = "http://localhost:8080/socialdemo/classic/all-spaces";
+  static private final String ALL_SPACE_LINK_URI = "/all-spaces";
   
   @View
   public void index() throws Exception {
     PortalRequestContext pcontext = (PortalRequestContext)(WebuiRequestContext.getCurrentInstance());
-    Object o = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_SPACE_NAME_KEY);
-    if (o == null) {
-      requestNOK();
+    Object spaceObject = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_SPACE_NAME_KEY);
+    Object statusObject = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_TYPE_KEY);
+    if (spaceObject == null) {
+      if (statusObject != null && "social.space.access.space-not-found".equals(statusObject.toString()))
+        requestNOK();
     }
     else {
-      String status = pcontext.getRequest().getSession().getAttribute(SpaceAccessType.ACCESSED_TYPE_KEY).toString();
-      String spaceName = o.toString();
+      String status = statusObject.toString();
+      String spaceName = spaceObject.toString();
       if ("social.space.access.join-space".equals(status))
         access(spaceName);
       else if ("social.space.access.closed-space".equals(status))
@@ -85,6 +88,8 @@ public class Controller {
         wikilink();
       else spaceFound(spaceName);
     }
+    pcontext.getRequest().getSession().removeAttribute(SpaceAccessType.ACCESSED_SPACE_NAME_KEY);
+    pcontext.getRequest().getSession().removeAttribute(SpaceAccessType.ACCESSED_TYPE_KEY);
   }
   
   @View
@@ -155,11 +160,16 @@ public class Controller {
   }
   
   @Action
+  public Response.Redirect goToAllSpaces() {
+    return Response.redirect(Utils.getURI("all-spaces"));
+  }
+  
+  @Action
   public Response.Redirect refuse(String spaceName) {
     String remoteId = Utils.getOwnerRemoteId();
     Space space = spaceService.getSpaceByPrettyName(spaceName);
     spaceService.removeInvitedUser(space, remoteId);
-    return Response.redirect(ALL_SPACE_LINK);
+    return Response.redirect(Utils.getURI("all-spaces"));
   }
   
 }

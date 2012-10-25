@@ -1,6 +1,0 @@
-#{param name=spaceName/}
-
-<div class="UISpaceAccessPortlet">
-Your request to join the space ${spaceName} has been sent
-<br><a href="@{cancel(spaceName=spaceName)}">Cancel</a></br>
-</div>
