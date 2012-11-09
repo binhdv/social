@@ -331,6 +331,9 @@
           <systemPropertyVariables>
             <org.jboss.byteman.contrib.bmunit.agent.port>${org.jboss.byteman.contrib.bmunit.agent.port}</org.jboss.byteman.contrib.bmunit.agent.port>
           </systemPropertyVariables>
+          <includes>
+            <include>**/InitContainerTestSuite.java</include>
+          </includes>
         </configuration>
       </plugin>
 
