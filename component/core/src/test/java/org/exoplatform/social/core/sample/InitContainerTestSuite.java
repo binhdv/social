@@ -63,34 +63,33 @@ import org.junit.runners.Suite.SuiteClasses;
  * Nov 8, 2012  
  */
 @RunWith(Suite.class)
-
 @SuiteClasses({
-  //ActivityManagerTest.class,
-  //ActivityStorageTest.class,
-  //ActivityStorageImplTestCase.class,
-  //CachedActivityStorageTestCase.class,
-  //IdentityManagerTest.class,
-  //IdentityStorageImplTestCase.class,
-  //IdentityStorageTest.class,
-  //CachedIdentityStorageTestCase.class,
-  //SpaceServiceTest.class,
+  ActivityManagerTest.class,
+  ActivityStorageTest.class,
+  ActivityStorageImplTestCase.class,
+  CachedActivityStorageTestCase.class,
+  IdentityManagerTest.class,
+  IdentityStorageImplTestCase.class,
+  IdentityStorageTest.class,
+  CachedIdentityStorageTestCase.class,
+  SpaceServiceTest.class,
+  CachedSpaceStorageTestCase.class,
   SpaceStorageTest.class,
-  CachedSpaceStorageTestCase.class
-  //SpaceAccessTest.class
-  //RelationshipManagerTest.class,
-  //CachedRelationshipStorageTestCase.class,
-  //RelationshipStorageTest.class,
-  //RelationshipPublisherTest.class,
-  //RelationshipStorageImplTestCase.class,
-  //SpaceUtilsRestTest.class,
-  //SpaceActivityPublisherTest.class,
-  //SpaceLifeCycleTest.class,
-  //SocialUserProfileEventListenerImplTest.class,
-  //OSHtmlSanitizerProcessorTest.class,
-  //TemplateParamsProcessorTest.class,
-  //ProfileUpdatesPublisherTest.class,
-  //MentionsProcessorTest.class,
-  //LinkProviderTest.class
+  SpaceAccessTest.class,
+  RelationshipManagerTest.class,
+  CachedRelationshipStorageTestCase.class,
+  RelationshipStorageTest.class,
+  RelationshipPublisherTest.class,
+  RelationshipStorageImplTestCase.class,
+  SpaceUtilsRestTest.class,
+  SpaceActivityPublisherTest.class,
+  SpaceLifeCycleTest.class,
+  SocialUserProfileEventListenerImplTest.class,
+  OSHtmlSanitizerProcessorTest.class,
+  TemplateParamsProcessorTest.class,
+  ProfileUpdatesPublisherTest.class,
+  MentionsProcessorTest.class,
+  LinkProviderTest.class
   })
 /**
 @SuiteClasses({

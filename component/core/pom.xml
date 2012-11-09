@@ -333,6 +333,7 @@
           </systemPropertyVariables>
           <includes>
             <include>**/InitContainerTestSuite.java</include>
+            <include>**/NoContainerTestSuite.java</include>
           </includes>
         </configuration>
       </plugin>

@@ -31,6 +31,8 @@ public class CachedSpaceStorageTestCase extends AbstractCoreTest {
   private Identity john;
   private Identity mary;
   private Identity root;
+  
+  private List<Space>  tearDownSpaceList;
 
   @Override
   public void setUp() throws Exception {
@@ -53,11 +55,18 @@ public class CachedSpaceStorageTestCase extends AbstractCoreTest {
     identityStorage.saveIdentity(mary);
     identityStorage.saveIdentity(john);
     identityStorage.saveIdentity(root);
+    
+    tearDownSpaceList = new ArrayList<Space>();
 
   }
   
   @Override
   public void tearDown() throws Exception {
+    
+    for (Space sp : tearDownSpaceList) {
+      cachedSpaceStorage.deleteSpace(sp.getId());
+    }
+    
     identityStorage.deleteIdentity(demo);
     identityStorage.deleteIdentity(mary);
     identityStorage.deleteIdentity(john);
@@ -93,7 +102,7 @@ public class CachedSpaceStorageTestCase extends AbstractCoreTest {
     assertEquals(0, cacheService.getActivitiesCache().getCacheSize());
     cachedActivityStorage.getActivitiesOfIdentities(is, 0, 10).size();
     assertEquals(1, cacheService.getActivitiesCache().getCacheSize());
-
+    
     //
     cachedSpaceStorage.deleteSpace(space.getId());
     assertEquals(0, cacheService.getActivitiesCache().getCacheSize());
@@ -106,7 +115,7 @@ public class CachedSpaceStorageTestCase extends AbstractCoreTest {
    * @throws Exception
    * @since 1.2.8
    */
-  @MaxQueryNumber(350)
+  @MaxQueryNumber(450)
   public void testRenameSpace() throws Exception {
     Space space = new Space();
     space.setDisplayName("Hello");
@@ -146,5 +155,9 @@ public class CachedSpaceStorageTestCase extends AbstractCoreTest {
     
     assertEquals(0, cacheService.getActivitiesCache().getCacheSize());
     assertEquals(0, cacheService.getIdentitiesCache().getCacheSize());
+    
+    //
+    cachedSpaceStorage.deleteSpace(space.getId());
+    assertEquals(0, cacheService.getActivitiesCache().getCacheSize());
   }
 }
