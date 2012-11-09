@@ -51,14 +51,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
   private final Log LOG = ExoLogger.getLogger(ActivityManagerSampleTest.class);
   
   private List<ExoSocialActivity> tearDownActivityList;
-  private Identity rootIdentity;
-  private Identity johnIdentity;
-  private Identity maryIdentity;
-  private Identity demoIdentity;
-  private Identity ghostIdentity;
-  private Identity raulIdentity;
-  private Identity jameIdentity;
-  private Identity paulIdentity;
+
 
   private IdentityManager identityManager;
   private RelationshipManager relationshipManager;
@@ -73,14 +66,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     relationshipManager = (RelationshipManager) getContainer().getComponentInstanceOfType(RelationshipManager.class);
     spaceService = (SpaceService) getContainer().getComponentInstanceOfType(SpaceService.class);
     tearDownActivityList = new ArrayList<ExoSocialActivity>();
-    rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root", false);
-    johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john", false);
-    maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary", false);
-    demoIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo", false);
-    ghostIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "ghost", true);
-    raulIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "raul", true);
-    jameIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "jame", true);
-    paulIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "paul", true);
+    
 
   }
 
@@ -93,14 +79,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
         LOG.warn("can not delete activity with id: " + activity.getId());
       }
     }
-    identityManager.deleteIdentity(rootIdentity);
-    identityManager.deleteIdentity(johnIdentity);
-    identityManager.deleteIdentity(maryIdentity);
-    identityManager.deleteIdentity(demoIdentity);
-    identityManager.deleteIdentity(ghostIdentity);
-    identityManager.deleteIdentity(jameIdentity);
-    identityManager.deleteIdentity(raulIdentity);
-    identityManager.deleteIdentity(paulIdentity);
+
     super.tearDown();
   }
 
@@ -112,7 +91,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    */
   public void testSaveActivityNoReturn() throws Exception {
     String activityTitle = "activity title";
-    String userId = johnIdentity.getId();
+    String userId = john.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     //test for reserving order of map values for i18n activity
     Map<String, String> templateParams = new LinkedHashMap<String, String>();
@@ -122,7 +101,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     activity.setTemplateParams(templateParams);
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(john, activity);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -144,7 +123,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    */
   public void testSaveActivityNoReturnNotStreamOwner() throws Exception {
     String activityTitle = "activity title";
-    String userId = johnIdentity.getId();
+    String userId = john.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
@@ -180,7 +159,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
       final String activityTitle = "root activity";
       ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
       rootActivity.setTitle(activityTitle);
-      rootActivity.setUserId(rootIdentity.getId());
+      rootActivity.setUserId(root.getId());
       activityManager.saveActivity(rootActivity);
 
       assertNotNull("rootActivity.getId() must not be null", rootActivity.getId());
@@ -196,7 +175,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
       final String title = "john activity";
       ExoSocialActivity johnActivity = new ExoSocialActivityImpl();
       johnActivity.setTitle(title);
-      activityManager.saveActivity(johnIdentity, johnActivity);
+      activityManager.saveActivity(john, johnActivity);
 
       tearDownActivityList.add(johnActivity);
 
@@ -210,7 +189,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
       activity.setUpdated(null);
       activity.setPostedTime(null);
       activity.setTitle(title);
-      activityManager.saveActivity(demoIdentity, activity);
+      activityManager.saveActivity(demo, activity);
       tearDownActivityList.add(activity);
       assertNotNull("activity.getId() must not be null", activity.getId());
       assertNotNull("activity.getUpdated() must not be null", activity.getUpdated());
@@ -227,11 +206,11 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    */
   public void testSaveActivityWithStreamOwner() throws Exception {
     String activityTitle = "activity title";
-    String userId = demoIdentity.getId();
+    String userId = demo.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivity(demoIdentity, activity);
+    activityManager.saveActivity(demo, activity);
     
     activity = activityManager.getActivity(activity.getId());
     assertNotNull("activity must not be null", activity);
@@ -248,16 +227,16 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    * @since 1.2.0-Beta3
    */
   public void testGetActivitiesWithOffsetLimit() throws Exception {
-    this.populateActivityMass(johnIdentity, 10);
-    List<ExoSocialActivity> johnActivities = activityManager.getActivities(johnIdentity, 0, 5);
+    this.populateActivityMass(john, 10);
+    List<ExoSocialActivity> johnActivities = activityManager.getActivities(john, 0, 5);
     assertNotNull("johnActivities must not be null", johnActivities);
     assertEquals("johnActivities.size() must return: 5", 5, johnActivities.size());
     
-    johnActivities = activityManager.getActivities(johnIdentity, 0, 10);
+    johnActivities = activityManager.getActivities(john, 0, 10);
     assertNotNull("johnActivities must not be null", johnActivities);
     assertEquals("johnActivities.size() must return: 0", 10, johnActivities.size());
     
-    johnActivities = activityManager.getActivities(johnIdentity, 0, 20);
+    johnActivities = activityManager.getActivities(john, 0, 20);
     assertNotNull("johnActivities must not be null", johnActivities);
     assertEquals("johnActivities.size() must return: 10", 10, johnActivities.size());
   }
@@ -268,24 +247,24 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    * @throws ActivityStorageException
    */
   public void testGetActivity() throws ActivityStorageException {
-      List<ExoSocialActivity> rootActivities = activityManager.getActivities(rootIdentity);
+      List<ExoSocialActivity> rootActivities = activityManager.getActivities(root);
       assertEquals("user's activities should have 0 element.", 0, rootActivities.size());
 
       String activityTitle = "title";
-      String userId = rootIdentity.getId();
+      String userId = root.getId();
       
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle(activityTitle);
       activity.setUserId(userId);
 
-      activityManager.saveActivityNoReturn(rootIdentity, activity);
+      activityManager.saveActivityNoReturn(root, activity);
 
       activity = activityManager.getActivity(activity.getId());
       assertNotNull("activity must not be null", activity);
       assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
       assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
       
-      rootActivities = activityManager.getActivities(rootIdentity);
+      rootActivities = activityManager.getActivities(root);
       assertEquals("user's activities should have 1 element", 1, rootActivities.size());
 
       tearDownActivityList.addAll(rootActivities);
@@ -295,8 +274,8 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    * Tests {@link ActivityManager#getParentActivity(ExoSocialActivity)}.
    */
   public void testGetParentActivity() {
-    populateActivityMass(demoIdentity, 1);
-    ExoSocialActivity demoActivity = activityManager.getActivitiesWithListAccess(demoIdentity).load(0, 1)[0];
+    populateActivityMass(demo, 1);
+    ExoSocialActivity demoActivity = activityManager.getActivitiesWithListAccess(demo).load(0, 1)[0];
     assertNotNull("demoActivity must be false", demoActivity);
     try {
       activityManager.getParentActivity(demoActivity);
@@ -308,7 +287,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     //comment
     ExoSocialActivityImpl comment = new ExoSocialActivityImpl();
     comment.setTitle("comment");
-    comment.setUserId(demoIdentity.getId());
+    comment.setUserId(demo.getId());
     activityManager.saveComment(demoActivity, comment);
     ExoSocialActivity gotComment = activityManager.getCommentsWithListAccess(demoActivity).load(0, 1)[0];
     assertNotNull("gotComment must not be null", gotComment);
@@ -335,11 +314,11 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    */
   public void testUpdateActivity() throws Exception {
     String activityTitle = "activity title";
-    String userId = johnIdentity.getId();
+    String userId = john.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(john, activity);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -366,11 +345,11 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    */
   public void testDeleteActivity() throws Exception {
     String activityTitle = "activity title";
-    String userId = johnIdentity.getId();
+    String userId = john.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(john, activity);
     
     activity = activityManager.getActivity(activity.getId());
     
@@ -389,11 +368,11 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    */
   public void testDeleteActivityWithId() throws Exception {
     String activityTitle = "activity title";
-    String userId = johnIdentity.getId();
+    String userId = john.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(john, activity);
     
     activity = activityManager.getActivity(activity.getId());
     
@@ -412,11 +391,11 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    */
   public void testSaveComment() throws Exception {
     String activityTitle = "activity title";
-    String userId = johnIdentity.getId();
+    String userId = john.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivityNoReturn(johnIdentity, activity);
+    activityManager.saveActivityNoReturn(john, activity);
     tearDownActivityList.add(activity);
     
     String commentTitle = "Comment title";
@@ -424,7 +403,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     //demo comments on john's activity
     ExoSocialActivity comment = new ExoSocialActivityImpl();
     comment.setTitle(commentTitle);
-    comment.setUserId(demoIdentity.getId());
+    comment.setUserId(demo.getId());
     activityManager.saveComment(activity, comment);
     
     List<ExoSocialActivity> demoComments = activityManager.getComments(activity);
@@ -433,7 +412,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     
     assertEquals("demoComments.get(0).getTitle() must return: " + commentTitle, 
                  commentTitle, demoComments.get(0).getTitle());
-    assertEquals("demoComments.get(0).getUserId() must return: " + demoIdentity.getId(), demoIdentity.getId(), demoComments.get(0).getUserId());
+    assertEquals("demoComments.get(0).getUserId() must return: " + demo.getId(), demo.getId(), demoComments.get(0).getUserId());
 
     ExoSocialActivity gotParentActivity = activityManager.getParentActivity(comment);
     assertNotNull(gotParentActivity);
@@ -453,7 +432,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demo, demoActivity);
     tearDownActivityList.add(demoActivity);
     
     int total = 10;
@@ -462,7 +441,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     
     for (int i = 0; i < total; i ++) {
       ExoSocialActivity maryComment = new ExoSocialActivityImpl();
-      maryComment.setUserId(maryIdentity.getId());
+      maryComment.setUserId(mary.getId());
       maryComment.setTitle("mary comment");
       activityManager.saveComment(demoActivity, maryComment);
       if (i == 5) {
@@ -490,12 +469,12 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demo, demoActivity);
     tearDownActivityList.add(demoActivity);
     
     ExoSocialActivity maryComment = new ExoSocialActivityImpl();
     maryComment.setTitle("mary comment");
-    maryComment.setUserId(maryIdentity.getId());
+    maryComment.setUserId(mary.getId());
     activityManager.saveComment(demoActivity, maryComment);
     
     activityManager.deleteComment(demoActivity, maryComment);
@@ -513,14 +492,14 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("&\"demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demo, demoActivity);
     tearDownActivityList.add(demoActivity);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds() must return: 0",
                  0, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.saveLike(demoActivity, johnIdentity);
+    activityManager.saveLike(demoActivity, john);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 1", 1, demoActivity.getLikeIdentityIds().length);
@@ -537,29 +516,29 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demo, demoActivity);
     tearDownActivityList.add(demoActivity);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds() must return: 0",
                  0, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.saveLike(demoActivity, johnIdentity);
+    activityManager.saveLike(demoActivity, john);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 1", 1, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.deleteLike(demoActivity, johnIdentity);
+    activityManager.deleteLike(demoActivity, john);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.deleteLike(demoActivity, maryIdentity);
+    activityManager.deleteLike(demoActivity, mary);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.deleteLike(demoActivity, rootIdentity);
+    activityManager.deleteLike(demoActivity, root);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
@@ -578,14 +557,14 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
       ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
       demoActivity.setTitle("demo activity");
       demoActivity.setUserId(demoActivity.getId());
-      activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+      activityManager.saveActivityNoReturn(demo, demoActivity);
       tearDownActivityList.add(demoActivity);
       if (i == 5) {
         baseActivity = demoActivity;
       }
     }
-    this.populateActivityMass(maryIdentity, total);
-    RealtimeListAccess<ExoSocialActivity> demoListAccess = activityManager.getActivitiesWithListAccess(demoIdentity);
+    this.populateActivityMass(mary, total);
+    RealtimeListAccess<ExoSocialActivity> demoListAccess = activityManager.getActivitiesWithListAccess(demo);
     assertNotNull("demoListAccess must not be null", demoListAccess);
     assertEquals("demoListAccess.getSize() must return: 10", 10, demoListAccess.getSize());
     assertEquals("demoListAccess.getNumberOfNewer(baseActivity) must return: 4", 4,
@@ -605,22 +584,22 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     for (int i = 0; i < 10; i ++) {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("activity title " + i);
-      activity.setUserId(johnIdentity.getId());
-      activityManager.saveActivityNoReturn(johnIdentity, activity);
+      activity.setUserId(john.getId());
+      activityManager.saveActivityNoReturn(john, activity);
       tearDownActivityList.add(activity);
       if (i == 5) {
         baseActivity = activity;
       }
     }
     
-    RealtimeListAccess<ExoSocialActivity> demoConnectionActivities = activityManager.getActivitiesOfConnectionsWithListAccess(demoIdentity);
+    RealtimeListAccess<ExoSocialActivity> demoConnectionActivities = activityManager.getActivitiesOfConnectionsWithListAccess(demo);
     assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
     assertEquals("demoConnectionActivities.getSize() must return: 0", 0, demoConnectionActivities.getSize());
     
-    Relationship demoJohnRelationship = relationshipManager.invite(demoIdentity, johnIdentity);
+    Relationship demoJohnRelationship = relationshipManager.invite(demo, john);
     relationshipManager.confirm(demoJohnRelationship);
     
-    demoConnectionActivities = activityManager.getActivitiesOfConnectionsWithListAccess(demoIdentity);
+    demoConnectionActivities = activityManager.getActivitiesOfConnectionsWithListAccess(demo);
     assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
     assertEquals("demoConnectionActivities.getSize() must return: 10", 10, demoConnectionActivities.getSize());
     assertEquals("demoConnectionActivities.getNumberOfNewer(baseActivity)", 4,
@@ -631,18 +610,18 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     for (int i = 0; i < 10; i ++) {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("activity title " + i);
-      activity.setUserId(maryIdentity.getId());
-      activityManager.saveActivityNoReturn(maryIdentity, activity);
+      activity.setUserId(mary.getId());
+      activityManager.saveActivityNoReturn(mary, activity);
       tearDownActivityList.add(activity);
       if (i == 5) {
         baseActivity = activity;
       }
     }
     
-    Relationship demoMaryRelationship = relationshipManager.invite(demoIdentity, maryIdentity);
+    Relationship demoMaryRelationship = relationshipManager.invite(demo, mary);
     relationshipManager.confirm(demoMaryRelationship);
     
-    demoConnectionActivities = activityManager.getActivitiesOfConnectionsWithListAccess(demoIdentity);
+    demoConnectionActivities = activityManager.getActivitiesOfConnectionsWithListAccess(demo);
     assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
     assertEquals("demoConnectionActivities.getSize() must return: 20", 20, demoConnectionActivities.getSize());
     assertEquals("demoConnectionActivities.getNumberOfNewer(baseActivity)", 4,
@@ -672,7 +651,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     for (int i = 0; i < totalNumber; i ++) {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("activity title " + i);
-      activity.setUserId(demoIdentity.getId());
+      activity.setUserId(demo.getId());
       activityManager.saveActivityNoReturn(spaceIdentity, activity);
       tearDownActivityList.add(activity);
       if (i == 5) {
@@ -685,7 +664,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     assertEquals("space.getDisplayName() must return: my space 0", "my space 0", space.getDisplayName());
     assertEquals("space.getDescription() must return: add new space 0", "add new space 0", space.getDescription());
     
-    RealtimeListAccess<ExoSocialActivity> demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(demoIdentity);
+    RealtimeListAccess<ExoSocialActivity> demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(demo);
     assertNotNull("demoActivities must not be null", demoActivities);
     assertEquals("demoActivities.getSize() must return: 10", 10, demoActivities.getSize());
     assertEquals("demoActivities.getNumberOfNewer(baseActivity) must return: 4", 4,
@@ -700,7 +679,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     for (int i = 0; i < totalNumber; i ++) {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("activity title " + i);
-      activity.setUserId(demoIdentity.getId());
+      activity.setUserId(demo.getId());
       activityManager.saveActivityNoReturn(spaceIdentity2, activity);
       tearDownActivityList.add(activity);
       if (i == 5) {
@@ -713,7 +692,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     assertEquals("space2.getDisplayName() must return: my space 1", "my space 1", space2.getDisplayName());
     assertEquals("space2.getDescription() must return: add new space 1", "add new space 1", space2.getDescription());
     
-    demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(demoIdentity);
+    demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(demo);
     assertNotNull("demoActivities must not be null", demoActivities);
     assertEquals("demoActivities.getSize() must return: 20", 20, demoActivities.getSize());
     assertEquals("demoActivities.getNumberOfNewer(baseActivity) must return 4", 4, 
@@ -721,7 +700,7 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     assertEquals("demoActivities.getNumberOfOlder(baseActivity) must return 15", 15, 
                  demoActivities.getNumberOfOlder(baseActivity));
     
-    demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(maryIdentity);
+    demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(mary);
     assertNotNull("demoActivities must not be null", demoActivities);
     assertEquals("demoActivities.getSize() must return: 0", 0, demoActivities.getSize());
     
@@ -736,45 +715,45 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
    * @since 1.2.0-Beta3
    */
   public void testGetActivityFeedWithListAccess() throws Exception {
-    this.populateActivityMass(demoIdentity, 3);
-    this.populateActivityMass(maryIdentity, 3);
-    this.populateActivityMass(johnIdentity, 2);
+    this.populateActivityMass(demo, 3);
+    this.populateActivityMass(mary, 3);
+    this.populateActivityMass(john, 2);
     
     Space space = this.getSpaceInstance(spaceService, 0);
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     populateActivityMass(spaceIdentity, 5);
 
-    RealtimeListAccess<ExoSocialActivity> demoActivityFeed = activityManager.getActivityFeedWithListAccess(demoIdentity);
+    RealtimeListAccess<ExoSocialActivity> demoActivityFeed = activityManager.getActivityFeedWithListAccess(demo);
     assertEquals("demoActivityFeed.getSize() must be 8", 8, demoActivityFeed.getSize());
 
-    Relationship demoMaryConnection = relationshipManager.invite(demoIdentity, maryIdentity);
-    assertEquals(8, activityManager.getActivityFeedWithListAccess(demoIdentity).getSize());
+    Relationship demoMaryConnection = relationshipManager.invite(demo, mary);
+    assertEquals(8, activityManager.getActivityFeedWithListAccess(demo).getSize());
 
     relationshipManager.confirm(demoMaryConnection);
-    RealtimeListAccess<ExoSocialActivity> demoActivityFeed2 = activityManager.getActivityFeedWithListAccess(demoIdentity);
+    RealtimeListAccess<ExoSocialActivity> demoActivityFeed2 = activityManager.getActivityFeedWithListAccess(demo);
     assertEquals("demoActivityFeed2.getSize() must return 11", 11, demoActivityFeed2.getSize());
-    RealtimeListAccess<ExoSocialActivity> maryActivityFeed = activityManager.getActivityFeedWithListAccess(maryIdentity);
+    RealtimeListAccess<ExoSocialActivity> maryActivityFeed = activityManager.getActivityFeedWithListAccess(mary);
     assertEquals("maryActivityFeed.getSize() must return 6", 6, maryActivityFeed.getSize());
     
     // Create demo's activity on space
-    createActivityToOtherIdentity(demoIdentity, spaceIdentity, 5);
+    createActivityToOtherIdentity(demo, spaceIdentity, 5);
 
     // after that the feed of demo with have 16
     RealtimeListAccess<ExoSocialActivity> demoActivityFeed3 = activityManager
-        .getActivityFeedWithListAccess(demoIdentity);
+        .getActivityFeedWithListAccess(demo);
     assertEquals("demoActivityFeed3.getSize() must return 16", 16,
         demoActivityFeed3.getSize());
 
     // demo's Space feed must be be 5
-    RealtimeListAccess demoActivitiesSpaceFeed = activityManager.getActivitiesOfUserSpacesWithListAccess(demoIdentity);
+    RealtimeListAccess demoActivitiesSpaceFeed = activityManager.getActivitiesOfUserSpacesWithListAccess(demo);
     assertEquals("demoActivitiesSpaceFeed.getSize() must return 10", 10, demoActivitiesSpaceFeed.getSize());
 
     // the feed of mary must be the same because mary not the member of space
-    RealtimeListAccess<ExoSocialActivity> maryActivityFeed2 = activityManager.getActivityFeedWithListAccess(maryIdentity);
+    RealtimeListAccess<ExoSocialActivity> maryActivityFeed2 = activityManager.getActivityFeedWithListAccess(mary);
     assertEquals("maryActivityFeed2.getSize() must return 6", 6, maryActivityFeed2.getSize());
 
     // john not friend of demo but member of space
-    RealtimeListAccess johnSpaceActivitiesFeed = activityManager.getActivitiesOfUserSpacesWithListAccess(johnIdentity);
+    RealtimeListAccess johnSpaceActivitiesFeed = activityManager.getActivitiesOfUserSpacesWithListAccess(john);
     assertEquals("johnSpaceActivitiesFeed.getSize() must return 10", 10, johnSpaceActivitiesFeed.getSize());
 
     relationshipManager.remove(demoMaryConnection);
@@ -792,11 +771,11 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
     
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("blah blah");
-    activityManager.saveActivity(rootIdentity, activity);
+    activityManager.saveActivity(root, activity);
 
     ExoSocialActivity comment = new ExoSocialActivityImpl();
     comment.setTitle(htmlString);
-    comment.setUserId(rootIdentity.getId());
+    comment.setUserId(root.getId());
     comment.setBody(htmlString);
     activityManager.saveComment(activity, comment);
     assertNotNull("comment.getId() must not be null", comment.getId());
@@ -816,11 +795,11 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
   public  void testGetComment() throws ActivityStorageException {
     ExoSocialActivity activity = new ExoSocialActivityImpl();;
     activity.setTitle("blah blah");
-    activityManager.saveActivity(rootIdentity, activity);
+    activityManager.saveActivity(root, activity);
 
     ExoSocialActivity comment = new ExoSocialActivityImpl();;
     comment.setTitle("comment blah blah");
-    comment.setUserId(rootIdentity.getId());
+    comment.setUserId(root.getId());
 
     activityManager.saveComment(activity, comment);
 
@@ -839,13 +818,13 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
   public  void testGetComments() throws ActivityStorageException {
     ExoSocialActivity activity = new ExoSocialActivityImpl();;
     activity.setTitle("blah blah");
-    activityManager.saveActivity(rootIdentity, activity);
+    activityManager.saveActivity(root, activity);
 
     List<ExoSocialActivity> comments = new ArrayList<ExoSocialActivity>();
     for (int i = 0; i < 10; i++) {
       ExoSocialActivity comment = new ExoSocialActivityImpl();;
       comment.setTitle("comment blah blah");
-      comment.setUserId(rootIdentity.getId());
+      comment.setUserId(root.getId());
       activityManager.saveComment(activity, comment);
       assertNotNull("comment.getId() must not be null", comment.getId());
 
@@ -873,15 +852,15 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
       //Case: a user create an activity in his stream, then give some comments on it.
       //Delete comments and check
       ExoSocialActivity activity1 = new ExoSocialActivityImpl();;
-      activity1.setUserId(demoIdentity.getId());
+      activity1.setUserId(demo.getId());
       activity1.setTitle(title);
-      activityManager.saveActivity(demoIdentity, activity1);
+      activityManager.saveActivity(demo, activity1);
 
       final int numberOfComments = 10;
       final String commentTitle = "Activity Comment";
       for (int i = 0; i < numberOfComments; i++) {
         ExoSocialActivity comment = new ExoSocialActivityImpl();;
-        comment.setUserId(demoIdentity.getId());
+        comment.setUserId(demo.getId());
         comment.setTitle(commentTitle + i);
         activityManager.saveComment(activity1, comment);
       }
@@ -921,16 +900,16 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
   * @throws ActivityStorageException
   */
  public void testGetActivities() throws ActivityStorageException {
-   List<ExoSocialActivity> rootActivityList = activityManager.getActivities(rootIdentity);
+   List<ExoSocialActivity> rootActivityList = activityManager.getActivities(root);
    assertNotNull("rootActivityList must not be null", rootActivityList);
    assertEquals(0, rootActivityList.size());
 
-   populateActivityMass(rootIdentity, 30);
-   List<ExoSocialActivity> activities = activityManager.getActivities(rootIdentity);
+   populateActivityMass(root, 30);
+   List<ExoSocialActivity> activities = activityManager.getActivities(root);
    assertNotNull("activities must not be null", activities);
    assertEquals(20, activities.size());
 
-   List<ExoSocialActivity> allActivities = activityManager.getActivities(rootIdentity, 0, 30);
+   List<ExoSocialActivity> allActivities = activityManager.getActivities(root, 0, 30);
 
    assertEquals(30, allActivities.size());
  }
@@ -943,25 +922,25 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
   * @throws Exception
   */
  public void testGetActivitiesOfConnections() throws Exception {
-   this.populateActivityMass(johnIdentity, 10);
+   this.populateActivityMass(john, 10);
    
-   List<ExoSocialActivity> demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity);
+   List<ExoSocialActivity> demoConnectionActivities = activityManager.getActivitiesOfConnections(demo);
    assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
    assertEquals("demoConnectionActivities.size() must return: 0", 0, demoConnectionActivities.size());
    
-   Relationship demoJohnRelationship = relationshipManager.invite(demoIdentity, johnIdentity);
+   Relationship demoJohnRelationship = relationshipManager.invite(demo, john);
    relationshipManager.confirm(demoJohnRelationship);
    
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity);
+   demoConnectionActivities = activityManager.getActivitiesOfConnections(demo);
    assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
    assertEquals("demoConnectionActivities.size() must return: 10", 10, demoConnectionActivities.size());
    
-   this.populateActivityMass(maryIdentity, 10);
+   this.populateActivityMass(mary, 10);
    
-   Relationship demoMaryRelationship = relationshipManager.invite(demoIdentity, maryIdentity);
+   Relationship demoMaryRelationship = relationshipManager.invite(demo, mary);
    relationshipManager.confirm(demoMaryRelationship);
    
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity);
+   demoConnectionActivities = activityManager.getActivitiesOfConnections(demo);
    assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
    assertEquals("demoConnectionActivities.size() must return: 20", 20, demoConnectionActivities.size());
    
@@ -976,33 +955,33 @@ public class ActivityManagerSampleTest extends BaseSocialTestCase {
   * @since 1.2.0-Beta3
   */
  public void testGetActivitiesOfConnectionswithOffsetLimit() throws Exception {
-this.populateActivityMass(johnIdentity, 10);
+this.populateActivityMass(john, 10);
    
-   List<ExoSocialActivity> demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 20);
+   List<ExoSocialActivity> demoConnectionActivities = activityManager.getActivitiesOfConnections(demo, 0, 20);
    assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
    assertEquals("demoConnectionActivities.size() must return: 0", 0, demoConnectionActivities.size());
    
-   Relationship demoJohnRelationship = relationshipManager.invite(demoIdentity, johnIdentity);
+   Relationship demoJohnRelationship = relationshipManager.invite(demo, john);
    relationshipManager.confirm(demoJohnRelationship);
    
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 5);
+   demoConnectionActivities = activityManager.getActivitiesOfConnections(demo, 0, 5);
    assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
    assertEquals("demoConnectionActivities.size() must return: 5", 5, demoConnectionActivities.size());
    
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 20);
+   demoConnectionActivities = activityManager.getActivitiesOfConnections(demo, 0, 20);
    assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
    assertEquals("demoConnectionActivities.size() must return: 10", 10, demoConnectionActivities.size());
    
-   this.populateActivityMass(maryIdentity, 10);
+   this.populateActivityMass(mary, 10);
    
-   Relationship demoMaryRelationship = relationshipManager.invite(demoIdentity, maryIdentity);
+   Relationship demoMaryRelationship = relationshipManager.invite(demo, mary);
    relationshipManager.confirm(demoMaryRelationship);
    
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 10);
+   demoConnectionActivities = activityManager.getActivitiesOfConnections(demo, 0, 10);
    assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
    assertEquals("demoConnectionActivities.size() must return: 10", 10, demoConnectionActivities.size());
    
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 20);
+   demoConnectionActivities = activityManager.getActivitiesOfConnections(demo, 0, 20);
    assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
    assertEquals("demoConnectionActivities.size() must return: 20", 20, demoConnectionActivities.size());
    
@@ -1025,7 +1004,7 @@ this.populateActivityMass(johnIdentity, 10);
    
    this.populateActivityMass(spaceIdentity, totalNumber);
    
-   List<ExoSocialActivity> demoActivities = activityManager.getActivitiesOfUserSpaces(demoIdentity);
+   List<ExoSocialActivity> demoActivities = activityManager.getActivitiesOfUserSpaces(demo);
    assertNotNull("demoActivities must not be null", demoActivities);
    assertEquals("demoActivities.size() must return: 10", 10, demoActivities.size());
    
@@ -1034,11 +1013,11 @@ this.populateActivityMass(johnIdentity, 10);
    
    this.populateActivityMass(spaceIdentity2, totalNumber);
    
-   demoActivities = activityManager.getActivitiesOfUserSpaces(demoIdentity);
+   demoActivities = activityManager.getActivitiesOfUserSpaces(demo);
    assertNotNull("demoActivities must not be null", demoActivities);
    assertEquals("demoActivities.size() must return: 20", 20, demoActivities.size());
    
-   demoActivities = activityManager.getActivitiesOfUserSpaces(maryIdentity);
+   demoActivities = activityManager.getActivitiesOfUserSpaces(mary);
    assertNotNull("demoActivities must not be null", demoActivities);
    assertEquals("demoActivities.size() must return: 0", 0, demoActivities.size());
    
@@ -1055,9 +1034,9 @@ this.populateActivityMass(johnIdentity, 10);
     final int totalActivityCount = 9;
     final int retrievedCount = 7;
 
-    this.populateActivityMass(johnIdentity, totalActivityCount);
+    this.populateActivityMass(john, totalActivityCount);
 
-    List<ExoSocialActivity> activities = activityManager.getActivities(johnIdentity, 0, retrievedCount);
+    List<ExoSocialActivity> activities = activityManager.getActivities(john, 0, retrievedCount);
     assertEquals(retrievedCount, activities.size());
   }
 
@@ -1068,24 +1047,24 @@ this.populateActivityMass(johnIdentity, 10);
    * @since 1.2.0-Beta3
    */
   public void testGetActivityFeed() throws Exception {
-    this.populateActivityMass(demoIdentity, 3);
-    this.populateActivityMass(maryIdentity, 3);
-    this.populateActivityMass(johnIdentity, 2);
+    this.populateActivityMass(demo, 3);
+    this.populateActivityMass(mary, 3);
+    this.populateActivityMass(john, 2);
 
     Space space = this.getSpaceInstance(spaceService, 0);
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
     populateActivityMass(spaceIdentity, 5);
 
-    List<ExoSocialActivity> demoActivityFeed = activityManager.getActivityFeed(demoIdentity);
+    List<ExoSocialActivity> demoActivityFeed = activityManager.getActivityFeed(demo);
     assertEquals("demoActivityFeed.size() must be 8", 8, demoActivityFeed.size());
 
-    Relationship demoMaryConnection = relationshipManager.invite(demoIdentity, maryIdentity);
-    assertEquals(8, activityManager.getActivityFeedWithListAccess(demoIdentity).getSize());
+    Relationship demoMaryConnection = relationshipManager.invite(demo, mary);
+    assertEquals(8, activityManager.getActivityFeedWithListAccess(demo).getSize());
 
     relationshipManager.confirm(demoMaryConnection);
-    List<ExoSocialActivity> demoActivityFeed2 = activityManager.getActivityFeed(demoIdentity);
+    List<ExoSocialActivity> demoActivityFeed2 = activityManager.getActivityFeed(demo);
     assertEquals("demoActivityFeed2.size() must return 11", 11, demoActivityFeed2.size());
-    List<ExoSocialActivity> maryActivityFeed = activityManager.getActivityFeed(maryIdentity);
+    List<ExoSocialActivity> maryActivityFeed = activityManager.getActivityFeed(mary);
     assertEquals("maryActivityFeed.size() must return 6", 6, maryActivityFeed.size());
 
     relationshipManager.remove(demoMaryConnection);
@@ -1102,7 +1081,7 @@ this.populateActivityMass(johnIdentity, 10);
     ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
     demoActivity.setTitle("demo activity");
     demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+    activityManager.saveActivityNoReturn(demo, demoActivity);
     tearDownActivityList.add(demoActivity);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
@@ -1110,22 +1089,22 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("demoActivity.getLikeIdentityIds() must return: 0",
                  0, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.saveLike(demoActivity, johnIdentity);
+    activityManager.saveLike(demoActivity, john);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 1", 1, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.removeLike(demoActivity, johnIdentity);
+    activityManager.removeLike(demoActivity, john);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.removeLike(demoActivity, maryIdentity);
+    activityManager.removeLike(demoActivity, mary);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
     
-    activityManager.removeLike(demoActivity, rootIdentity);
+    activityManager.removeLike(demoActivity, root);
     
     demoActivity = activityManager.getActivity(demoActivity.getId());
     assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
@@ -1145,11 +1124,11 @@ this.populateActivityMass(johnIdentity, 10);
     String EMOTION_ACTIVITY_TYPE = "EMOTION_ACTIVITY";
     
     String activityTitle = "activity title";
-    String userId = demoIdentity.getId();
+    String userId = demo.getId();
     
     ExoSocialActivity activity = null;
     
-    activity = activityManager.recordActivity(demoIdentity, DEFAULT_ACTIVITY_TYPE, activityTitle);
+    activity = activityManager.recordActivity(demo, DEFAULT_ACTIVITY_TYPE, activityTitle);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1158,7 +1137,7 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
     assertEquals("activity.getType() must return: " + DEFAULT_ACTIVITY_TYPE, DEFAULT_ACTIVITY_TYPE, activity.getType());
     
-    activity = activityManager.recordActivity(demoIdentity, RELATIONSHIP_ACTIVITY_TYPE, activityTitle);
+    activity = activityManager.recordActivity(demo, RELATIONSHIP_ACTIVITY_TYPE, activityTitle);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1167,7 +1146,7 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
     assertEquals("activity.getType() must return: " + RELATIONSHIP_ACTIVITY_TYPE, RELATIONSHIP_ACTIVITY_TYPE, activity.getType());
     
-    activity = activityManager.recordActivity(demoIdentity, DOC_ACTIVITY_TYPE, activityTitle);
+    activity = activityManager.recordActivity(demo, DOC_ACTIVITY_TYPE, activityTitle);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1176,7 +1155,7 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
     assertEquals("activity.getType() must return: " + DOC_ACTIVITY_TYPE, DOC_ACTIVITY_TYPE, activity.getType());
     
-    activity = activityManager.recordActivity(demoIdentity, LINK_ACTIVITY_TYPE, activityTitle);
+    activity = activityManager.recordActivity(demo, LINK_ACTIVITY_TYPE, activityTitle);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1185,7 +1164,7 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
     assertEquals("activity.getType() must return: " + LINK_ACTIVITY_TYPE, LINK_ACTIVITY_TYPE, activity.getType());
     
-    activity = activityManager.recordActivity(demoIdentity, EMOTION_ACTIVITY_TYPE, activityTitle);
+    activity = activityManager.recordActivity(demo, EMOTION_ACTIVITY_TYPE, activityTitle);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1209,12 +1188,12 @@ this.populateActivityMass(johnIdentity, 10);
     String EMOTION_ACTIVITY_TYPE = "EMOTION_ACTIVITY";
     
     String activityTitle = "activity title";
-    String userId = demoIdentity.getId();
+    String userId = demo.getId();
     String activityBody = "activity body";
     
     ExoSocialActivity activity = null;
     
-    activity = activityManager.recordActivity(demoIdentity, DEFAULT_ACTIVITY_TYPE, activityTitle, activityBody);
+    activity = activityManager.recordActivity(demo, DEFAULT_ACTIVITY_TYPE, activityTitle, activityBody);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1224,7 +1203,7 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("activity.getType() must return: " + DEFAULT_ACTIVITY_TYPE, DEFAULT_ACTIVITY_TYPE, activity.getType());
     assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
     
-    activity = activityManager.recordActivity(demoIdentity, RELATIONSHIP_ACTIVITY_TYPE, activityTitle, activityBody);
+    activity = activityManager.recordActivity(demo, RELATIONSHIP_ACTIVITY_TYPE, activityTitle, activityBody);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1234,7 +1213,7 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("activity.getType() must return: " + RELATIONSHIP_ACTIVITY_TYPE, RELATIONSHIP_ACTIVITY_TYPE, activity.getType());
     assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
     
-    activity = activityManager.recordActivity(demoIdentity, DOC_ACTIVITY_TYPE, activityTitle, activityBody);
+    activity = activityManager.recordActivity(demo, DOC_ACTIVITY_TYPE, activityTitle, activityBody);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1244,7 +1223,7 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("activity.getType() must return: " + DOC_ACTIVITY_TYPE, DOC_ACTIVITY_TYPE, activity.getType());
     assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
     
-    activity = activityManager.recordActivity(demoIdentity, LINK_ACTIVITY_TYPE, activityTitle, activityBody);
+    activity = activityManager.recordActivity(demo, LINK_ACTIVITY_TYPE, activityTitle, activityBody);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1254,7 +1233,7 @@ this.populateActivityMass(johnIdentity, 10);
     assertEquals("activity.getType() must return: " + LINK_ACTIVITY_TYPE, LINK_ACTIVITY_TYPE, activity.getType());
     assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
     
-    activity = activityManager.recordActivity(demoIdentity, EMOTION_ACTIVITY_TYPE, activityTitle, activityBody);
+    activity = activityManager.recordActivity(demo, EMOTION_ACTIVITY_TYPE, activityTitle, activityBody);
     tearDownActivityList.add(activity);
     
     activity = activityManager.getActivity(activity.getId());
@@ -1273,11 +1252,11 @@ this.populateActivityMass(johnIdentity, 10);
    */
   public void testRecordActivity() throws Exception {
     String activityTitle = "activity title";
-    String userId = demoIdentity.getId();
+    String userId = demo.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.recordActivity(demoIdentity, activity);
+    activityManager.recordActivity(demo, activity);
     
     activity = activityManager.getActivity(activity.getId());
     assertNotNull("activity must not be null", activity);
@@ -1294,11 +1273,11 @@ this.populateActivityMass(johnIdentity, 10);
    * @since 1.2.0-Beta3
    */
   public void testGetActivitiesCount() throws Exception {
-    int count = activityManager.getActivitiesCount(rootIdentity);
+    int count = activityManager.getActivitiesCount(root);
     assertEquals("count must be: 0", 0, count);
 
-    populateActivityMass(rootIdentity, 30);
-    count = activityManager.getActivitiesCount(rootIdentity);
+    populateActivityMass(root, 30);
+    count = activityManager.getActivitiesCount(root);
     assertEquals("count must be: 30", 30, count);
   }
   

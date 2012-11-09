@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -33,6 +34,8 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.application.RelationshipPublisher.TitleId;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.processor.MentionsProcessor;
+import org.exoplatform.social.core.processor.OSHtmlSanitizerProcessor;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -178,8 +181,8 @@ public class ActivityStorageImplTestCase extends AbstractCoreTest {
 
     //
     ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle("&");
-    activity.setBody("test&amp;");
+    activity.setTitle("a");
+    activity.setBody("test");
     activityStorage._createActivity(rootIdentity, activity);
     assertNotNull(activity.getId());
 

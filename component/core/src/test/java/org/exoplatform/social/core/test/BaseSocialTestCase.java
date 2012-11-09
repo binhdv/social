@@ -28,6 +28,9 @@ import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.component.test.KernelBootstrap;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.jboss.byteman.contrib.bmunit.BMUnit;
 
 /**
@@ -50,13 +53,22 @@ public abstract class BaseSocialTestCase extends AbstractKernelTest {
   public static boolean wantCount = false;
   private static int count;
   private int maxQuery;
+  
+  protected static Identity root;
+  protected static Identity john;
+  protected static Identity mary;
+  protected static Identity demo;
+  protected static Identity ghost;
+  protected static Identity raul;
+  protected static Identity jame;
+  protected static Identity paul;
 
   /** . */
-  public static KernelBootstrap socialBootstrap;
+  public static KernelBootstrap socialBootstrap = null;
   
   @Override
   public PortalContainer getContainer() {
-     return socialBootstrap != null ? socialBootstrap.getContainer() : null;
+     return socialBootstrap != null ? socialBootstrap.getContainer() : super.getContainer();
   }
   
   @Override
@@ -70,16 +82,61 @@ public abstract class BaseSocialTestCase extends AbstractKernelTest {
       BMUnit.loadScriptFile(getClass(), "queryCount", "src/test/resources");
     }
     
+    bootstrapTestData();
+    
+  }
+  /**
+   * Init after init container.
+   */
+  public void bootstrapTestData() {
+    IdentityManager identityManager = (IdentityManager) getContainer().getComponentInstanceOfType(IdentityManager.class);
+    if (root != null) {
+      root = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root", false);
+    }
+    
+    if (john != null) {
+      john = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john", false);
+    }
+    
+    if (mary != null) {
+      mary = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary", false);
+    }
+    
+    if (demo != null) {
+      demo = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "demo", false);
+    }
+    
+    if (ghost != null) {
+      ghost = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "ghost", true);
+    }
+    
+    if (raul != null) {
+      raul = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "raul", true);
+      
+    }
+    
+    if (jame != null) {
+      jame = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "jame", true);
+    }
+    
+    if (paul != null) {
+      paul = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "paul", true);
+    }
+    
   }
 
   @Override
   protected void beforeRunBare() throws Exception {
-   
+   if (socialBootstrap == null) {
+     super.beforeRunBare();
+   }
   }
   
   @Override
   protected void afterRunBare() {
-   
+    if (socialBootstrap == null && super.getContainer() != null) {
+      super.afterRunBare();
+    }
   }
   
   @Override
@@ -91,48 +148,48 @@ public abstract class BaseSocialTestCase extends AbstractKernelTest {
   // Fork from Junit 3.8.2
   @Override
   /**
-	 * Override to run the test and assert its state.
-	 * @throws Throwable if any exception is thrown
-	 */
-	protected void runTest() throws Throwable {
+   * Override to run the test and assert its state.
+   * @throws Throwable if any exception is thrown
+   */
+  protected void runTest() throws Throwable {
     String fName = getName();
-		assertNotNull("TestCase.fName cannot be null", fName); // Some VMs crash when calling getMethod(null,null);
-		Method runMethod= null;
-		try {
-			// use getMethod to get all public inherited
-			// methods. getDeclaredMethods returns all
-			// methods of this class but excludes the
-			// inherited ones.
-			runMethod= getClass().getMethod(fName, (Class[])null);
-		} catch (NoSuchMethodException e) {
-			fail("Method \""+fName+"\" not found");
-		}
-		if (!Modifier.isPublic(runMethod.getModifiers())) {
-			fail("Method \""+fName+"\" should be public");
-		}
+    assertNotNull("TestCase.fName cannot be null", fName); // Some VMs crash when calling getMethod(null,null);
+    Method runMethod= null;
+    try {
+      // use getMethod to get all public inherited
+      // methods. getDeclaredMethods returns all
+      // methods of this class but excludes the
+      // inherited ones.
+      runMethod= getClass().getMethod(fName, (Class[])null);
+    } catch (NoSuchMethodException e) {
+      fail("Method \""+fName+"\" not found");
+    }
+    if (!Modifier.isPublic(runMethod.getModifiers())) {
+      fail("Method \""+fName+"\" should be public");
+    }
 
-		try {
+    try {
       MaxQueryNumber queryNumber = runMethod.getAnnotation(MaxQueryNumber.class);
       if (queryNumber != null) {
         wantCount = true;
         maxQuery = queryNumber.value();
       }
-			runMethod.invoke(this);
-		}
-		catch (InvocationTargetException e) {
-			e.fillInStackTrace();
-			throw e.getTargetException();
-		}
-		catch (IllegalAccessException e) {
-			e.fillInStackTrace();
-			throw e;
-		}
+      runMethod.invoke(this);
+    }
+    catch (InvocationTargetException e) {
+      e.fillInStackTrace();
+      throw e.getTargetException();
+    }
+    catch (IllegalAccessException e) {
+      e.fillInStackTrace();
+      throw e;
+    }
 
     if (wantCount && count > maxQuery) {
       throw new AssertionFailedError(""+ count + " JDBC queries was executed but the maximum is : " + maxQuery);
     }
     
-	}
+  }
 
   // Called by byteman
   public static void count() {

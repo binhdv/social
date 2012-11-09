@@ -3,6 +3,7 @@ package org.exoplatform.social.core.storage.cache;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.impl.ActivityStorageImpl;
@@ -25,17 +26,47 @@ public class CachedSpaceStorageTestCase extends AbstractCoreTest {
   private SocialStorageCacheService cacheService;
   private CachedActivityStorage cachedActivityStorage;
   private IdentityStorageImpl identityStorage;
+  
+  private Identity demo;
+  private Identity john;
+  private Identity mary;
+  private Identity root;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
+    begin();
 
     cachedSpaceStorage = (CachedSpaceStorage) getContainer().getComponentInstanceOfType(CachedSpaceStorage.class);
     cachedActivityStorage = (CachedActivityStorage) getContainer().getComponentInstanceOfType(CachedActivityStorage.class);
     identityStorage = (IdentityStorageImpl) getContainer().getComponentInstanceOfType(IdentityStorageImpl.class);
     cacheService = (SocialStorageCacheService) getContainer().getComponentInstanceOfType(SocialStorageCacheService.class);
+    
+    
+    demo = new Identity(OrganizationIdentityProvider.NAME, "demo");
+    mary = new Identity(OrganizationIdentityProvider.NAME, "mary");
+    john = new Identity(OrganizationIdentityProvider.NAME, "john");
+    root = new Identity(OrganizationIdentityProvider.NAME, "root");
+    
+
+    identityStorage.saveIdentity(demo);
+    identityStorage.saveIdentity(mary);
+    identityStorage.saveIdentity(john);
+    identityStorage.saveIdentity(root);
 
   }
+  
+  @Override
+  public void tearDown() throws Exception {
+    identityStorage.deleteIdentity(demo);
+    identityStorage.deleteIdentity(mary);
+    identityStorage.deleteIdentity(john);
+    identityStorage.deleteIdentity(root);
+    
+    end();
+    super.tearDown();
+  }
+
 
   @MaxQueryNumber(150)
   public void testRemoveSpace() throws Exception {
@@ -75,13 +106,17 @@ public class CachedSpaceStorageTestCase extends AbstractCoreTest {
    * @throws Exception
    * @since 1.2.8
    */
-  @MaxQueryNumber(250)
+  @MaxQueryNumber(350)
   public void testRenameSpace() throws Exception {
     Space space = new Space();
     space.setDisplayName("Hello");
     space.setPrettyName(space.getDisplayName());
     space.setGroupId("/space/Hello");
     space.setUrl(space.getPrettyName());
+    String[] managers = new String[] {"demo", "mary"};
+    String[] members = new String[] {"demo", "mary", "john"};
+    space.setManagers(managers);
+    space.setMembers(members);
     cachedSpaceStorage.saveSpace(space, true);
 
     //
