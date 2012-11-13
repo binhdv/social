@@ -149,14 +149,14 @@
   </properties>
 
   <modules>
-    <module>extension</module>
-    <module>demo</module>
     <module>component</module>
     <module>webapp</module>
     <module>extras</module>
+    <module>demo</module>
     <module>server</module>
     <module>packaging</module>
     <module>config</module>
+    <module>extension</module>
   </modules>
 
   <dependencyManagement>
