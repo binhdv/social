@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.social.core.sample;
+package org.exoplatform.social.core.test;
 
 import org.exoplatform.social.core.identity.model.GlobalIdTest;
 import org.exoplatform.social.core.identity.model.IdentityTest;
@@ -55,12 +55,11 @@ public class NoContainerTestSuite {
   
   @BeforeClass
   public static void setUp() throws Exception {
-    System.out.println("setting up");
+    
   }
 
   @AfterClass
   public static void tearDown() {
-    System.out.println("tearing down");
   }
 
 

@@ -388,6 +388,7 @@ public class ActivityStorageImplTestCase extends AbstractCoreTest {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("title " + i);
       activityStorage._createActivity(rootIdentity, activity);
+      tearDownActivityList.add(activity);
     }
 
     int i = 9;
@@ -434,6 +435,7 @@ public class ActivityStorageImplTestCase extends AbstractCoreTest {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("title " + i);
       activityStorage._createActivity(rootIdentity, activity);
+      
     }
 
     // remove 5 activities
@@ -442,12 +444,17 @@ public class ActivityStorageImplTestCase extends AbstractCoreTest {
     for (int i = 0; i < 5; ++i) {
       activityStorage.deleteActivity(it.next().getId());
     }
+    
+    while (it.hasNext()) {
+      tearDownActivityList.add(it.next());
+    }
 
     // fill 10 others
     for (int i = 0; i < 10; ++i) {
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("title " + i);
       activityStorage._createActivity(rootIdentity, activity);
+      tearDownActivityList.add(activity);
     }
 
     List<ExoSocialActivity> activityies = activityStorage.getUserActivities(rootIdentity);
@@ -463,12 +470,15 @@ public class ActivityStorageImplTestCase extends AbstractCoreTest {
   public void testCommentOrder() throws Exception {
     // fill 10 activities
     for (int i = 0; i < 10; ++i) {
+      Thread.sleep(10);
       ExoSocialActivity activity = new ExoSocialActivityImpl();
       activity.setTitle("title " + i);
       activityStorage._createActivity(rootIdentity, activity);
+      tearDownActivityList.add(activity);
 
       // fill 10 comments for each activity
       for(int j = 0; j < 10; ++j) {
+        Thread.sleep(10);
         ExoSocialActivity comment = new ExoSocialActivityImpl();
         comment.setTitle("title " + i + j);
         comment.setUserId(rootIdentity.getId());
@@ -495,10 +505,13 @@ public class ActivityStorageImplTestCase extends AbstractCoreTest {
     activity.setTitle("activity title");
 
     activityStorage.saveActivity(rootIdentity, activity);
+    tearDownActivityList.add(activity);
 
     activity = activityStorage.getActivity(activity.getId());
 
     for (int i = 0; i < 10; ++i) {
+      Thread.sleep(10);
+      
       ExoSocialActivity comment = new ExoSocialActivityImpl();
       comment.setTitle("comment title " + i);
       comment.setUserId(rootIdentity.getId());

@@ -14,15 +14,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.social.core.sample;
+package org.exoplatform.social.core.test;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
-import junit.framework.TestSuite;
-
-import org.exoplatform.component.test.KernelBootstrap;
+import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
+import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.social.core.application.ProfileUpdatesPublisherTest;
 import org.exoplatform.social.core.application.RelationshipPublisherTest;
 import org.exoplatform.social.core.application.SpaceActivityPublisherTest;
@@ -49,11 +44,8 @@ import org.exoplatform.social.core.storage.cache.CachedSpaceStorageTestCase;
 import org.exoplatform.social.core.storage.impl.ActivityStorageImplTestCase;
 import org.exoplatform.social.core.storage.impl.IdentityStorageImplTestCase;
 import org.exoplatform.social.core.storage.impl.RelationshipStorageImplTestCase;
-import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
@@ -62,7 +54,6 @@ import org.junit.runners.Suite.SuiteClasses;
  *          thanh_vucong@exoplatform.com
  * Nov 8, 2012  
  */
-@RunWith(Suite.class)
 @SuiteClasses({
   ActivityManagerTest.class,
   ActivityStorageTest.class,
@@ -91,72 +82,17 @@ import org.junit.runners.Suite.SuiteClasses;
   MentionsProcessorTest.class,
   LinkProviderTest.class
   })
-/**
-@SuiteClasses({
-  ActivityManagerSampleTest.class,
-  RelationshipManagerSampleTest.class,
-  SpaceServiceSampleTest.class
-})**/
-public class InitContainerTestSuite {
-
-  /** . */
-  private static KernelBootstrap bootstrap;
-
-  /** . */
-  private static final Map<Class<?>, AtomicLong> counters = new HashMap<Class<?>, AtomicLong>();
-
+@ConfigTestCase(AbstractCoreTest.class)
+public class InitContainerTestSuite extends BaseExoContainerTestSuite {
   
   @BeforeClass
   public static void setUp() throws Exception {
+    initConfiguration(InitContainerTestSuite.class);
     beforeSetup();
-    System.out.println("setting up");
   }
 
   @AfterClass
   public static void tearDown() {
-    System.out.println("tearing down");
     afterTearDown();
-  }
-  
-  private static void beforeSetup() throws Exception {
-    Class<?> key = AbstractCoreTest.class;
-    //Class<?> key = BaseSocialTestCase.class;
-
-    //
-    if (!counters.containsKey(key))
-    {
-       counters.put(key, new AtomicLong(new TestSuite(AbstractCoreTest.class).testCount()));
-       //counters.put(key, new AtomicLong(new TestSuite(BaseSocialTestCase.class).testCount()));
-
-       //
-       bootstrap = new KernelBootstrap(Thread.currentThread().getContextClassLoader());
-
-       // Configure ourselves
-       bootstrap.addConfiguration(AbstractCoreTest.class);
-       //bootstrap.addConfiguration(BaseSocialTestCase.class);
-
-       //
-       bootstrap.boot();
-       AbstractCoreTest.socialBootstrap = bootstrap;
-       //BaseSocialTestCase.socialBootstrap = bootstrap;
-    }
-  }
-  
-  private static void afterTearDown() {
-    Class<?> key = AbstractCoreTest.class;
-    //Class<?> key = BaseSocialTestCase.class;
-
-    //
-    if (counters.get(key).decrementAndGet() == 0)
-    {
-       bootstrap.dispose();
-
-       //
-       bootstrap = null;
-       
-       AbstractCoreTest.socialBootstrap = null;
-       //BaseSocialTestCase.socialBootstrap = null;
-       
-    }
   }
 }

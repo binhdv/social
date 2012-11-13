@@ -22,12 +22,10 @@ import java.lang.reflect.Modifier;
 
 import junit.framework.AssertionFailedError;
 
-import org.exoplatform.component.test.AbstractKernelTest;
+import org.exoplatform.commons.testing.BaseExoTestCase;
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
-import org.exoplatform.component.test.KernelBootstrap;
-import org.exoplatform.container.PortalContainer;
 import org.jboss.byteman.contrib.bmunit.BMUnit;
 
 /**
@@ -45,19 +43,13 @@ import org.jboss.byteman.contrib.bmunit.BMUnit;
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/standalone/exo.social.component.common.test.configuration.xml"),
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/standalone/exo.social.component.core.test.configuration.xml")
 })
-public abstract class AbstractCoreTest extends AbstractKernelTest {
+public abstract class AbstractCoreTest extends BaseExoTestCase {
 
   public static boolean wantCount = false;
   private static int count;
   private int maxQuery;
   
-  /** . */
-  public static KernelBootstrap socialBootstrap = null;
   
-  @Override
-  public PortalContainer getContainer() {
-     return socialBootstrap != null ? socialBootstrap.getContainer() : super.getContainer();
-  }
   
   @Override
   protected void setUp() throws Exception {
@@ -73,24 +65,11 @@ public abstract class AbstractCoreTest extends AbstractKernelTest {
   }
 
   @Override
-  protected void beforeRunBare() throws Exception {
-   if (socialBootstrap == null) {
-     super.beforeRunBare();
-   }
-  }
-  
-  @Override
-  protected void afterRunBare() {
-    if (socialBootstrap == null && super.getContainer() != null) {
-      super.afterRunBare();
-    }
-  }
-  
-  @Override
   protected void tearDown() throws Exception {
     wantCount = false;
     end();
   }
+  
 
   // Fork from Junit 3.8.2
   @Override
