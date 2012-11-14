@@ -31,18 +31,15 @@ public class XmlTagFilterPolicyTest extends AbstractCommonTest {
 
   private XMLTagFilterPolicy configXmlTagFilterPolicy;
 
-  private XMLTagFilterPolicy plainXmlTagFilterPolicy;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     configXmlTagFilterPolicy = (XMLTagFilterPolicy) getContainer().getComponentInstanceOfType(XMLTagFilterPolicy.class);
-    plainXmlTagFilterPolicy = new XMLTagFilterPolicy();
   }
 
   @Override
   public void tearDown() throws Exception {
-    plainXmlTagFilterPolicy = null;
     super.tearDown();
   }
 

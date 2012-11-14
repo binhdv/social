@@ -58,7 +58,7 @@ public class SpaceRest {
   public SpaceRest(Space space) {
     this.url = space.getUrl();
     this.groupId = space.getGroupId();
-    this.name = space.getName();
+    this.name = space.getPrettyName();
   }
   
   /**

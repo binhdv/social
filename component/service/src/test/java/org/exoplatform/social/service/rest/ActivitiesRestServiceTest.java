@@ -38,17 +38,18 @@ public class ActivitiesRestServiceTest extends AbstractResourceTest {
     super.setUp();
 
     activitiesRestService = new ActivitiesRestService();
-    registry(activitiesRestService);
+    //registry(activitiesRestService);
+    addResource(activitiesRestService.getClass(),null );
     container = PortalContainer.getInstance();
     activityManager = (ActivityManager) container.getComponentInstanceOfType(ActivityManager.class);
     populateData();
-//    startSessionAs("root");
+    //    startSessionAs("root");
   }
 
   public void tearDown() throws Exception {
     super.tearDown();
 
-    unregistry(activitiesRestService);
+    removeResource(activitiesRestService.getClass());
   }
 
   public void testDestroyActivity() throws Exception {

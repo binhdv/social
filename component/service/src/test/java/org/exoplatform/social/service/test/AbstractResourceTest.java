@@ -35,7 +35,6 @@ import org.exoplatform.services.rest.impl.EnvironmentContext;
 import org.exoplatform.services.rest.impl.InputHeadersMap;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
 import org.exoplatform.services.rest.tools.DummyContainerResponseWriter;
-import org.exoplatform.services.test.mock.MockHttpServletRequest;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -279,13 +278,13 @@ public abstract class AbstractResourceTest extends AbstractServiceTest {
     assertEquals("activity.getTitleId() must return: " + activity.getTitleId() == null ? "" : activity.getTitleId(),
                   activity.getTitleId() == null ? "" : activity.getTitleId() ,
                   entity.get("titleId"));
-    Identity streamOwnerIdentity = Util.getOwnerIdentityIdFromActivity(activity);
+    Identity streamOwnerIdentity = Util.getOwnerIdentityIdFromActivity("portal",activity);
     assertEquals("activity.getIdentityId() must return: " + streamOwnerIdentity.getId() == null ? "" : streamOwnerIdentity.getId(),
                   streamOwnerIdentity.getId() == null ? "" : streamOwnerIdentity.getId(),
                   entity.get("identityId"));
     
     assertEquals("TotalNumberOfComments must be equal:",
-                  Util.getActivityManager().getCommentsWithListAccess(activity).getSize(),
+                  Util.getActivityManager("portal").getCommentsWithListAccess(activity).getSize(),
                   entity.get("totalNumberOfComments"));
   }
   /**
@@ -353,7 +352,7 @@ public abstract class AbstractResourceTest extends AbstractServiceTest {
     assertNotNull("entity must not be null", entity);
     assertEquals("activity.getId() must be equal:" + activity.getId() == null ? "" :activity.getId(),
         activity.getId() == null ? "" :activity.getId(), entity.get("id"));
-    Identity posterIdentity = Util.getOwnerIdentityIdFromActivity(activity);
+    Identity posterIdentity = Util.getOwnerIdentityIdFromActivity("portal",activity);
     compareIdentity(posterIdentity, (HashMap<String, Object>) entity.get("posterIdentity"));
     assertEquals("activity.getId() must be equal:" + activity.getTitle() == null ? "" :activity.getTitle(),
         activity.getTitle() == null ? "" :activity.getTitle(), entity.get("text"));

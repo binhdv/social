@@ -65,7 +65,7 @@ public class SpaceLifeCycleEvent  extends LifeCycleEvent<String,Space>{
   }
 
   public String toString() {
-    return source + ":" + type + "@" + payload.getName();
+    return source + ":" + type + "@" + payload.getPrettyName();
   }
 
 }

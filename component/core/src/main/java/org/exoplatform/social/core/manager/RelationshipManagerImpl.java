@@ -16,8 +16,6 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.exoplatform.commons.utils.ListAccess;
@@ -86,112 +84,6 @@ public class RelationshipManagerImpl implements RelationshipManager {
       return null;
     }
     return relationship;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Relationship invite(Identity sender, Identity receiver) throws RelationshipStorageException {
-    return this.inviteToConnect(sender, receiver);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void save(Relationship relationship) throws RelationshipStorageException {
-    this.update(relationship);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void confirm(Relationship relationship) throws RelationshipStorageException {
-    this.confirm(relationship.getReceiver(), relationship.getSender());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void deny(Relationship relationship) throws RelationshipStorageException {
-    this.deny(relationship.getReceiver(), relationship.getSender());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void remove(Relationship relationship) throws RelationshipStorageException {
-    this.delete(relationship);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void ignore(Relationship relationship) throws RelationshipStorageException {
-    this.ignore(relationship.getSender(), relationship.getReceiver());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getPending(Identity sender) throws RelationshipStorageException {
-    return getSender(sender, Relationship.Type.PENDING, null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getPending(Identity sender, List<Identity> identities) throws RelationshipStorageException {
-    return getSender(sender, Relationship.Type.PENDING, identities);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getIncoming(Identity receiver) throws RelationshipStorageException {
-    return getReceiver(receiver, Relationship.Type.PENDING, null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getIncoming(Identity receiver, List<Identity> identities) throws RelationshipStorageException {
-    return getReceiver(receiver, Relationship.Type.PENDING, identities);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getConfirmed(Identity identity) throws RelationshipStorageException {
-    return getRelationships(identity, Relationship.Type.CONFIRMED, null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getConfirmed(Identity identity, List<Identity> identities) throws RelationshipStorageException {
-    return getRelationships(identity, Relationship.Type.CONFIRMED, identities);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getAll(Identity identity) throws RelationshipStorageException {
-    return getRelationships(identity, null, null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getAll(Identity identity, List<Identity> identities) throws RelationshipStorageException {
-    return getRelationships(identity, null, identities);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getAll(Identity identity, Relationship.Type type,
-                                                List<Identity> identities) throws RelationshipStorageException {
-    return getRelationships(identity, type, identities);
   }
 
   /**
@@ -310,120 +202,12 @@ public class RelationshipManagerImpl implements RelationshipManager {
     return storage.getReceiverRelationships(receiver, type, identities);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public Relationship create(Identity sender, Identity receiver) {
-    return new Relationship(sender, receiver);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> findRelationships(Identity ownerIdentity, Type relationshipType) throws RelationshipStorageException {
-    List<Relationship> allRelationships = getAll(ownerIdentity, relationshipType, null);
-    List<Identity> identities = new ArrayList<Identity>();
-    if (allRelationships == null || allRelationships.size() == 0) {
-      return identities;
-    }
-    for(Relationship relationship : allRelationships) {
-      identities.add(relationship.getPartner(ownerIdentity));
-    }
-    return identities;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> findRoute(Identity sender, Identity receiver) throws RelationshipStorageException {
-    List<Relationship> route = new ArrayList<Relationship>();
-    route.add(get(sender,receiver));
-    return route;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Type getConnectionStatus(Identity fromIdentity, Identity toIdentity) throws Exception {
-    return getStatus(fromIdentity, toIdentity);
-  }
   
   /**
    * {@inheritDoc}
    */
   public ListAccess<Identity> getConnections(Identity identity) {
     return (new ConnectionListAccess(storage, identity, ConnectionListAccess.Type.CONNECTION));
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getContacts(Identity currIdentity, List<Identity> identities) throws RelationshipStorageException {
-    return getAll(currIdentity, Type.CONFIRMED, identities);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getContacts(Identity identity) throws RelationshipStorageException {
-    return getAll(identity, Type.CONFIRMED, null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentities(Identity id) throws Exception {
-    return Arrays.asList(this.getConnections(id).load(OFFSET, LIMIT));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getPendingRelationships(Identity identity) throws RelationshipStorageException {
-    return getPending(identity);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getPendingRelationships(Identity identity, boolean toConfirm) throws RelationshipStorageException {
-    return getAll(identity, Type.PENDING, null);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getPendingRelationships(Identity currIdentity, List<Identity> identities,
-                                                    boolean toConfirm) throws RelationshipStorageException {
-    return getAll(currIdentity, Type.PENDING, identities);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Relationship getRelationship(Identity sender, Identity receiver) throws RelationshipStorageException {
-    return get(sender, receiver);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Relationship getRelationshipById(String id) throws RelationshipStorageException {
-    return get(id);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Type getRelationshipStatus(Relationship rel, Identity id) {
-    return rel.getStatus();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getRelationshipsByIdentityId(String id) throws RelationshipStorageException {
-    return getAll(getIdentityManager().getIdentity(id));
   }
 
   private IdentityManager getIdentityManager() {
@@ -433,19 +217,6 @@ public class RelationshipManagerImpl implements RelationshipManager {
     return identityManager;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void saveRelationship(Relationship relationship) throws RelationshipStorageException {
-    save(relationship);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Relationship> getAllRelationships(Identity identity) throws RelationshipStorageException {
-    return getAll(identity);
-  }
 
   /**
    * {@inheritDoc}

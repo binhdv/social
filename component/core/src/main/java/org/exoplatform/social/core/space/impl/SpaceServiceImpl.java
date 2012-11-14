@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.commons.utils.PageList;
+import org.exoplatform.commons.utils.LazyList;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
@@ -172,12 +172,7 @@ public class SpaceServiceImpl implements SpaceService {
     return spaceStorage.getSpaceByDisplayName(spaceDisplayName);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public Space getSpaceByName(String spaceName) {
-    return getSpaceByPrettyName(spaceName);
-  }
+
 
   /**
    * {@inheritDoc}
@@ -186,27 +181,6 @@ public class SpaceServiceImpl implements SpaceService {
     return spaceStorage.getSpaceByPrettyName(spacePrettyName);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getSpacesByFirstCharacterOfName(String firstCharacterOfName) throws SpaceException {
-    try {
-      return Arrays.asList(this.getAllSpacesByFilter(new SpaceFilter(firstCharacterOfName.charAt(0))).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getSpacesBySearchCondition(String searchCondition) throws SpaceException {
-    try {
-      return Arrays.asList(this.getAllSpacesByFilter(new SpaceFilter(searchCondition)).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
-  }
 
   /**
    * {@inheritDoc}
@@ -229,28 +203,7 @@ public class SpaceServiceImpl implements SpaceService {
     return spaceStorage.getSpaceByUrl(url);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getSpaces(String userId) throws SpaceException {
-    try {
-      return Arrays.asList(this.getMemberSpaces(userId).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getAccessibleSpaces(String userId) throws SpaceException {
-    try {
-      return Arrays.asList(this.getAccessibleSpacesWithListAccess(userId).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
-  }
-  
   /**
    * {@inheritDoc}
    */
@@ -286,39 +239,8 @@ public class SpaceServiceImpl implements SpaceService {
       return new SpaceListAccess(this.spaceStorage, userId, spaceFilter,SpaceListAccess.Type.VISIBLE);
     }
   }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getEditableSpaces(String userId)  throws SpaceException {
-    try {
-      return Arrays.asList(this.getSettingableSpaces(userId).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getInvitedSpaces(String userId) throws SpaceException {
-    try {
-      return Arrays.asList(this.getInvitedSpacesWithListAccess(userId).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getPublicSpaces(String userId) throws SpaceException {
-    try {
-      return Arrays.asList(this.getPublicSpacesWithListAccess(userId).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
-  }
 
   /**
    * {@inheritDoc}
@@ -331,16 +253,7 @@ public class SpaceServiceImpl implements SpaceService {
     }
   }
   
-  /**
-   * {@inheritDoc}
-   */
-  public List<Space> getPendingSpaces(String userId) throws SpaceException {
-    try {
-      return Arrays.asList(this.getPendingSpacesWithListAccess(userId).load(OFFSET, LIMIT));
-    } catch (Exception e) {
-      throw new SpaceException(SpaceException.Code.ERROR_DATASTORE, e);
-    }
-  }
+
 
   /**
    * {@inheritDoc}
@@ -378,8 +291,9 @@ public class SpaceServiceImpl implements SpaceService {
         // Cannot use due to http://jira.exoplatform.org/browse/EXOGTN-173
         //ListAccess<User> groupMembersAccess = org.getUserHandler().findUsersByGroup(invitedGroupId);
         //User [] users = groupMembersAccess.load(0, groupMembersAccess.getSize());
-        PageList<User> groupMembersAccess = org.getUserHandler().findUsersByGroup(invitedGroupId);
-        List<User> users = groupMembersAccess.getAll();
+        //PageList<User> groupMembersAccess = org.getUserHandler().findUsersByGroup(invitedGroupId);
+        LazyList<User> groupMembersAccess = (LazyList<User>) org.getUserHandler().findUsersByGroupId(invitedGroupId);
+        List<User> users = groupMembersAccess.subList(0, groupMembersAccess.size()-1);
 
         for (User user : users) {
           String userId = user.getUserName();
@@ -476,38 +390,6 @@ public class SpaceServiceImpl implements SpaceService {
     spaceLifeCycle.spaceRemoved(space, null);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void deleteSpace(String spaceId) {
-    deleteSpace(getSpaceById(spaceId));
-  }
-
-  /**
-   * {@inheritDoc}
-   * 
-   * @deprecated Uses {@link #initApps(Space)} instead.
-   */
-  public void initApp(Space space) throws SpaceException {
-    LOG.warn("Does nothing, just for compatible. It will be removed at 1.3.x");
-    return;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void initApps(Space space) throws SpaceException {
-    LOG.warn("Does nothing, just for compatible. It will be removed at 1.3.x");
-    return;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void deInitApps(Space space) throws SpaceException {
-    LOG.warn("Does nothing, just for compatible. It will be removed at 1.3.x");
-    return;
-  }
 
   /**
    * {@inheritDoc}
@@ -528,13 +410,6 @@ public class SpaceServiceImpl implements SpaceService {
   /**
    * {@inheritDoc}
    */
-  public void addMember(String spaceId, String userId) {
-    addMember(getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public void removeMember(Space space, String userId) {
     String[] members = space.getMembers();
     if (ArrayUtils.contains(members, userId)) {
@@ -544,13 +419,6 @@ public class SpaceServiceImpl implements SpaceService {
       SpaceUtils.removeUserFromGroupWithMemberMembership(userId, space.getGroupId());
       spaceLifeCycle.memberLeft(space, userId);
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void removeMember(String spaceId, String userId) {
-    removeMember(getSpaceById(spaceId), userId);
   }
 
   /**
@@ -601,70 +469,6 @@ public class SpaceServiceImpl implements SpaceService {
     return space;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public List<String> getMembers(Space space) {
-    if (space.getMembers() != null) {
-      return Arrays.asList(space.getMembers());
-    } 
-    return new ArrayList<String> ();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<String> getMembers(String spaceId) {
-    return getMembers(getSpaceById(spaceId));
-  }
-
-  /**
-   * {@inheritDoc}
-   * If isLeader == true, that user will be assigned "manager" membership and the "member" memberhship will be removed.
-   * Otherwise, that user will be assigned "member" membership and the "manager" membership will be removed.
-   * However, if that user is the only manager, that user is not allowed to be removed from the manager membership.
-   */
-  public void setLeader(Space space, String userId, boolean isLeader) {
-    this.setManager(space, userId, isLeader);
-  }
-
-  /**
-   * {@inheritDoc}
-   * 
-   * If isLeader == true, that user will be assigned "manager" membership and the "member" membership will be removed.
-   * Otherwise, that user will be assigned "member" membership and the "manager" membership will be removed.
-   */
-  public void setLeader(String spaceId, String userId, boolean isLeader) {
-    this.setManager(this.getSpaceById(spaceId), userId, isLeader);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isLeader(Space space, String userId) {
-    return this.isManager(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isLeader(String spaceId, String userId) {
-    return this.isManager(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isOnlyLeader(Space space, String userId) {
-    return this.isOnlyManager(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isOnlyLeader(String spaceId, String userId) {
-    return this.isOnlyManager(this.getSpaceById(spaceId), userId);
-  }
 
   /**
    * {@inheritDoc}
@@ -673,12 +477,6 @@ public class SpaceServiceImpl implements SpaceService {
     return ArrayUtils.contains(space.getMembers(), userId);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isMember(String spaceId, String userId) {
-    return isMember(getSpaceById(spaceId), userId);
-  }
 
   /**
    * {@inheritDoc}
@@ -692,54 +490,6 @@ public class SpaceServiceImpl implements SpaceService {
     return false;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public boolean hasAccessPermission(String spaceId, String userId) {
-    return hasAccessPermission(getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean hasEditPermission(Space space, String userId) {
-    return this.hasSettingPermission(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean hasEditPermission(String spaceId, String userId) {
-    return this.hasSettingPermission(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isInvited(Space space, String userId) {
-    return this.isInvitedUser(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isInvited(String spaceId, String userId) {
-    return this.isInvitedUser(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isPending(Space space, String userId) {
-    return this.isPendingUser(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isPending(String spaceId, String userId) {
-    return this.isPendingUser(this.getSpaceById(spaceId), userId);
-  }
 
   /**
    * {@inheritDoc}
@@ -845,110 +595,6 @@ public class SpaceServiceImpl implements SpaceService {
     this.addPendingUser(this.getSpaceById(spaceId), userId);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void requestJoin(Space space, String userId) {
-    this.addPendingUser(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void revokeRequestJoin(Space space, String userId) {
-    this.removePendingUser(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void revokeRequestJoin(String spaceId, String userId) {
-    this.removePending(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void inviteMember(Space space, String userId) {
-    this.addInvitedUser(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void inviteMember(String spaceId, String userId) {
-    this.addInvitedUser(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void revokeInvitation(Space space, String userId) {
-    this.removeInvitedUser(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void revokeInvitation(String spaceId, String userId) {
-    this.removeInvitedUser(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void acceptInvitation(Space space, String userId) throws SpaceException {
-    this.addMember(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void acceptInvitation(String spaceId, String userId) throws SpaceException {
-    this.addMember(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void denyInvitation(String spaceId, String userId) {
-    this.removeInvitedUser(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void denyInvitation(Space space, String userId) {
-    this.removeInvitedUser(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void validateRequest(Space space, String userId) {
-    this.addMember(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void validateRequest(String spaceId, String userId) {
-    this.addMember(this.getSpaceById(spaceId), userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void declineRequest(Space space, String userId) {
-    this.removePendingUser(space, userId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void declineRequest(String spaceId, String userId) {
-    this.removePendingUser(this.getSpaceById(spaceId), userId);
-  }
 
   /**
    * {@inheritDoc}
@@ -1135,23 +781,6 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   /**
-   * @return
-   * @deprecated To be removed at 1.3.x.
-   */
-  public SpaceStorage getStorage() {
-    return spaceStorage;
-  }
-
-  /**
-   * 
-   * @param storage
-   * @deprecated  To be removed at 1.3.x
-   */
-  public void setStorage(SpaceStorage storage) {
-    this.spaceStorage = storage;
-  }
-
-  /**
    * {@inheritDoc}
    */
   public void addInvitedUser(Space space, String userId) {
@@ -1162,7 +791,7 @@ public class SpaceServiceImpl implements SpaceService {
       LOG.warn("User already member");
       return;
     }
-    if (isPending(space, userId)) {
+    if (isPendingUser(space, userId)) {
       space = removePending(space, userId);
       addMember(space, userId);
     } else {

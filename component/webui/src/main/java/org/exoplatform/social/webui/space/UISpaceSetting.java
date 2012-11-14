@@ -131,7 +131,7 @@ public class UISpaceSetting extends UIContainer {
     SpaceService spaceSrc = getApplicationComponent(SpaceService.class);
     String userId = Util.getPortalRequestContext().getRemoteUser();
     Space currentSpace = spaceSrc.getSpaceById(space.getId());
-    if (spaceSrc.hasEditPermission(currentSpace, userId)) {
+    if (spaceSrc.hasSettingPermission(currentSpace, userId)) {
       return true;
     } else {
       return false;

@@ -107,26 +107,6 @@ public final class Util {
                    .status(status)
                    .build();
   }
-  
-  /**
-   * Gets mediaType from string format.
-   * Currently supports json and xml only.
-   *
-   * @param format
-   * @return mediaType of matched or throw BAD_REQUEST exception
-   * @throws WebApplicationException
-   * @deprecated User {@link #getMediaType(String, String[])} instead.
-   *             Will be removed by 1.3.x
-   */
-  @Deprecated
-  public static MediaType getMediaType(String format) throws WebApplicationException {
-    if (format.equals("json")) {
-      return MediaType.APPLICATION_JSON_TYPE;
-    } else if(format.equals("xml")) {
-      return MediaType.APPLICATION_XML_TYPE;
-    }
-    throw new WebApplicationException(Response.Status.BAD_REQUEST);
-  }
 
 
   /**
@@ -183,38 +163,10 @@ public final class Util {
    * Gets identity of viewer user (logged-in user). Do not load profile.
    *
    * @return identity
-   * @since 1.2.0 GA
-   * @deprecated Use {@link #getViewerIdentity(String, String)} instead.
-   *             Will be removed by 1.3.x
-   */
-  @Deprecated
-  public static Identity getViewerIdentity(String viewerId) {
-    return getUserIdentity(viewerId, false);
-  }
-
-  /**
-   * Gets identity of viewer user (logged-in user). Do not load profile.
-   *
-   * @return identity
    * @since 1.2.3
    */
   public static Identity getViewerIdentity(String portalContainerName, String viewerId) {
     return getUserIdentity(portalContainerName, viewerId, false);
-  }
-
-  /**
-   * Gets identity from the remote id (user name)
-   * 
-   * @param userName
-   * @param loadProfile
-   * @return identity
-   * @since 1.2.0 GA
-   * @deprecated Use {@link #getUserIdentity(String, String, boolean)} instead.
-   *             Will be removed by 1.3.x
-   */
-  @Deprecated
-  public static Identity getUserIdentity(String userName, boolean loadProfile) {
-    return getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, userName, loadProfile);
   }
 
   /**
@@ -232,19 +184,6 @@ public final class Util {
   }
   
   /**
-   * Gets identityManager with default portal container.
-   *
-   * @return identityManager
-   * @since 1.2.0 GA
-   * @deprecated Use {@link #getIdentityManager(String)} instead.
-   *             Will be removed by 1.3.x
-   */
-  @Deprecated
-  public static final IdentityManager getIdentityManager() {
-    return (IdentityManager) getDefaultPortalContainer().getComponentInstanceOfType(IdentityManager.class);
-  }
-
-  /**
    * Gets {@link IdentityManager} with specified portal container name.
    *
    * @param portalContainerName the specified portal container name
@@ -258,19 +197,6 @@ public final class Util {
 
 
   /**
-   * Gets {@link SpaceService} with default portal container.
-   *
-   * @return the space service
-   * @since  1.2.0-GA
-   * @deprecated Use {@link #getSpaceService(String)} instead.
-   *             Will be removed by 1.3.x
-   */
-  @Deprecated
-  public static final SpaceService getSpaceService() {
-    return (SpaceService) getDefaultPortalContainer().getComponentInstanceOfType(SpaceService.class);
-  }
-
-  /**
    * Gets {@link SpaceService} with specified portal container name.
    *
    * @param portalContainerName the specified portal container name
@@ -279,20 +205,6 @@ public final class Util {
    */
   public static final SpaceService getSpaceService(String portalContainerName) {
     return (SpaceService) getPortalContainerByName(portalContainerName).getComponentInstanceOfType(SpaceService.class);
-  }
-
-
-  /**
-   * Gets {@link ActivityManager} with default portal container.
-   *
-   * @return the activity manager
-   * @since  1.2.0-GA
-   * @deprecated Use {@link #getActivityManager(String)} instead.
-   *             Will be removed by 1.3.x
-   */
-  @Deprecated
-  public static final ActivityManager getActivityManager() {
-    return (ActivityManager) getDefaultPortalContainer().getComponentInstanceOfType(ActivityManager.class);
   }
 
   /**
@@ -306,20 +218,6 @@ public final class Util {
     return (ActivityManager) getPortalContainerByName(portalContainerName).
                              getComponentInstanceOfType(ActivityManager.class);
   }
-
-  /**
-   * Gets {@link RelationshipManager} with default portal container.
-   *
-   * @return the relationship manager
-   * @since  1.2.0-GA
-   * @deprecated Use {@link #getRelationshipManager(String)} instead.
-   *             Will be removed by 1.3.x
-   */
-  @Deprecated
-  public static final RelationshipManager getRelationshipManager() {
-    return (RelationshipManager) getDefaultPortalContainer().getComponentInstanceOfType(RelationshipManager.class);
-  }
-
 
   /**
    * Gets {@link RelationshipManager} with specified portal container name.
@@ -355,28 +253,6 @@ public final class Util {
    SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss Z yyyy");
    dateFormat.setTimeZone(TimeZone.getDefault());
    return dateFormat.format(new Date(timestamp));
-  }
-
-  /**
-   * Gets a owner identity Id from a provided activity.
-   *
-   * @param activity the activity to gets its owner identity
-   * @return the owner identity
-   * @since  1.2.3
-   * @deprecated Use {@link #getOwnerIdentityIdFromActivity(String, ExoSocialActivity)} instead.
-   *             Will be removed by 1.3.x
-   */
-  @Deprecated
-  public static Identity getOwnerIdentityIdFromActivity(ExoSocialActivity activity) {
-    IdentityManager identityManager = getIdentityManager();
-    ActivityStream activityStream=  activity.getActivityStream();
-    ActivityStream.Type activityType =  activityStream.getType();
-    String name = activity.getStreamOwner();
-    if(activityType.equals(ActivityStream.Type.USER)){
-      return identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, name, false);
-    } else {
-      return identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, name, false);
-    }
   }
 
   /**

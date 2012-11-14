@@ -16,8 +16,6 @@
  */
 package org.exoplatform.social.core.identity;
 
-import java.util.List;
-
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 
@@ -93,18 +91,6 @@ public abstract class IdentityProvider<T> {
   }
 
   /**
-   * This method is called after the IdentityManager have saved the profile object.
-   *
-   * @param profile
-   * @deprecated Will be removed by 1.3.x
-   */
-  @Deprecated
-  public void onSaveProfile(Profile profile) {
-    return;
-  }
-
-
-  /**
    * This method is called after the IdentityManager updated the profile object.
    *
    * @param profile
@@ -112,16 +98,5 @@ public abstract class IdentityProvider<T> {
    */
   public void onUpdateProfile(Profile profile) {
     return;
-  }
-
-  /**
-   * Gets the list of string containing the remote ids.
-   *
-   * @return the string list containing remote ids
-   * @deprecated Will be removed by 1.3.x
-   */
-  @Deprecated
-  public List<String> getAllUserId() {
-    throw new RuntimeException("getAllUserId() is not implemented for " + getClass());
   }
 }

@@ -42,16 +42,17 @@ public class IdentityRestServiceTest extends AbstractResourceTest {
     container = PortalContainer.getInstance();
     identityManager = (IdentityManager) container.getComponentInstanceOfType(IdentityManager.class);
     identityRestService = new IdentityRestService();
-    registry(identityRestService);
+    //registry(identityRestService);
+    addResource(identityRestService.getClass(),null);
 
-    rootId = identityManager.getOrCreateIdentity(PROVIDER_ID, "root").getId();
-    johnId = identityManager.getOrCreateIdentity(PROVIDER_ID, "john").getId();
+    rootId = identityManager.getOrCreateIdentity(PROVIDER_ID, "root", true).getId();
+    johnId = identityManager.getOrCreateIdentity(PROVIDER_ID, "john", true).getId();
   }
 
   public void tearDown() throws Exception {
     super.tearDown();
 
-    unregistry(identityRestService);
+    removeResource(identityRestService.getClass());
   }
 
   public void testGetRootId() throws Exception {

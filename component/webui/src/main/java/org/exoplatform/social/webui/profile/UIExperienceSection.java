@@ -527,7 +527,7 @@ public class UIExperienceSection extends UIProfileSection {
         Profile updateProfile = new Profile(p.getIdentity());
         updateProfile.setId(p.getId());
         updateProfile.setProperty(Profile.EXPERIENCES, experiences);
-        Utils.getIdentityManager().updateExperienceSection(updateProfile);
+        Utils.getIdentityManager().updateProfile(updateProfile);
       }
 
       return 0;

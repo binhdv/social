@@ -185,7 +185,7 @@ public class UISpaceNavigationNodeSelector extends UIContainer {
       UIWorkingWorkspace uiWorkingWS = Util.getUIPortalApplication()
                                            .getChild(UIWorkingWorkspace.class);
       prContext.addUIComponentToUpdateByAjax(uiWorkingWS);
-      prContext.setFullRender(true);
+      prContext.ignoreAJAXUpdateOnPortlets(true);
     }
   }
 
@@ -438,7 +438,7 @@ public class UISpaceNavigationNodeSelector extends UIContainer {
         // convert Page to UIPage
         PortalDataMapper.toUIPage(uiPage, selectPage);
         Util.getPortalRequestContext().addUIComponentToUpdateByAjax(uiWorkingWS);
-        Util.getPortalRequestContext().setFullRender(true);
+        Util.getPortalRequestContext().ignoreAJAXUpdateOnPortlets(true);
       } else {
         uiApp.addMessage(new ApplicationMessage("UIPageNodeSelector.msg.notAvailable", null));
       }

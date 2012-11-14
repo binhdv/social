@@ -2,8 +2,6 @@ package org.exoplatform.social.extras.injection;
 
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.relationship.model.Relationship;
-
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -80,8 +78,10 @@ public class RelationshipInjector extends AbstractSocialInjector {
           Identity identity2 = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, toUser, false);
 
           //
-          Relationship r = new Relationship(identity1, identity2, Relationship.Type.CONFIRMED);
-          relationshipManager.saveRelationship(r);
+          //Relationship r = new Relationship(identity1, identity2, Relationship.Type.CONFIRMED);
+          //relationshipManager.saveRelationship(r);
+          relationshipManager.inviteToConnect(identity1, identity2);
+          relationshipManager.confirm(identity2, identity1);
           
           //
           getLog().info("Relationship between " + fromUser + " and " + toUser + " generated");

@@ -130,8 +130,9 @@ public class ProfileConfig {
   public String getType(String fieldName, String propertyName) {
     if (this.storage == null) {
       ExoContainer container = ExoContainerContext.getCurrentContainer();
-      IdentityManager im = (IdentityManager) container.getComponentInstanceOfType(IdentityManager.class);
-      this.storage = im.getIdentityStorage();
+      //IdentityManager im = (IdentityManager) container.getComponentInstanceOfType(IdentityManager.class);
+      //this.storage = im.getIdentityStorage();
+      this.storage = (IdentityStorage) container.getComponentInstanceOfType(IdentityStorage.class);
     }
     try {
       String type = storage.getType(fieldName, propertyName);

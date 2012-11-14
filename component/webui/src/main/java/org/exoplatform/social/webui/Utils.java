@@ -16,8 +16,10 @@
  */
 package org.exoplatform.social.webui;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
 import org.exoplatform.portal.mop.SiteType;
@@ -150,7 +152,8 @@ public class Utils {
    * @since 1.2.0 GA
    */
   public static List<Identity> getOwnerFriends() throws Exception {
-    return Utils.getIdentityManager().getConnections(getOwnerIdentity());
+    ListAccess<Identity> identityListAccess = Utils.getIdentityManager().getConnectionsWithListAccess(getOwnerIdentity());
+    return Arrays.asList(identityListAccess.load(0, identityListAccess.getSize()));
   }
 
   /**
@@ -161,7 +164,8 @@ public class Utils {
    * @since 1.2.0 GA
    */
   public static List<Identity> getViewerFriends() throws Exception {
-    return Utils.getIdentityManager().getConnections(getViewerIdentity());
+    ListAccess<Identity> identityListAccess = Utils.getIdentityManager().getConnectionsWithListAccess(getViewerIdentity());
+    return Arrays.asList(identityListAccess.load(0, identityListAccess.getSize()));
   }
 
   /**
@@ -173,7 +177,8 @@ public class Utils {
     UIWorkingWorkspace uiWorkingWS = Util.getUIPortalApplication().getChildById(UIPortalApplication.UI_WORKING_WS_ID);
     PortalRequestContext pContext = Util.getPortalRequestContext();
     pContext.addUIComponentToUpdateByAjax(uiWorkingWS);
-    pContext.setFullRender(true);
+    //pContext.setFullRender(true);
+    pContext.ignoreAJAXUpdateOnPortlets(true);
   }
 
   /**

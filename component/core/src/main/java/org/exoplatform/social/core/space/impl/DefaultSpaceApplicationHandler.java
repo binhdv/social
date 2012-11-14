@@ -448,7 +448,7 @@ public class DefaultSpaceApplicationHandler implements SpaceApplicationHandler {
    * @return
    */
   private UserPortal getUserPortal() {
-    return Util.getUIPortalApplication().getUserPortalConfig().getUserPortal();
+    return Util.getPortalRequestContext().getUserPortalConfig().getUserPortal();
   }
   /**
    * Gets an application by its id.

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -75,27 +76,30 @@ public class SpaceActivityPublisherTest extends  AbstractCoreTest {
    * @throws Exception
    */
   public void testSpaceCreation() throws Exception {
-    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root", true);
 
     Space space = new Space();
     space.setDisplayName("Toto");
     space.setPrettyName(space.getDisplayName());
     space.setGroupId("/platform/users");
-    spaceService.saveSpace(space, true);
+    //spaceService.updateSpace(space);
+    spaceService.saveSpace(space,true);
     assertNotNull("space.getId() must not be null", space.getId());
     SpaceLifeCycleEvent event  = new SpaceLifeCycleEvent(space, rootIdentity.getRemoteId(), SpaceLifeCycleEvent.Type.SPACE_CREATED);
     spaceActivityPublisher.spaceCreated(event);
 
     Thread.sleep(3000);
 
-    Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-    List<ExoSocialActivity> activities = activityManager.getActivities(identity);
-    assertEquals(1, activities.size());
-    tearDownActivityList.add(activities.get(0));
-    assertTrue(activities.get(0).getTitle().contains(space.getDisplayName()));
-    assertTrue(activities.get(0).getTitle().contains("root"));
+    Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), true);
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivitiesWithListAccess(identity);
+    assertEquals(1, activities.getSize());
 
-    ActivityStream activityStream = activities.get(0).getActivityStream();
+    ExoSocialActivity exoSocialActivity = activities.load(0,1)[0];
+    tearDownActivityList.add(exoSocialActivity);
+    assertTrue(exoSocialActivity.getTitle().contains(space.getDisplayName()));
+    assertTrue(exoSocialActivity.getTitle().contains("root"));
+
+    ActivityStream activityStream = exoSocialActivity.getActivityStream();
 
     assertNotNull("activityStream.getId() must not be null", activityStream.getId());
 

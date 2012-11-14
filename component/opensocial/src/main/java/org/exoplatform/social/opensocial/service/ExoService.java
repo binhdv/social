@@ -27,6 +27,7 @@ import org.apache.shindig.auth.AnonymousSecurityToken;
 import org.apache.shindig.auth.SecurityToken;
 import org.apache.shindig.social.opensocial.spi.GroupId;
 import org.apache.shindig.social.opensocial.spi.UserId;
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -92,11 +93,13 @@ public class ExoService {
   protected List<Identity> getFriendsList(Identity id, SecurityToken token) throws Exception {
     PortalContainer pc = (PortalContainer) getPortalContainer(token);
     RelationshipManager rm = (RelationshipManager) pc.getComponentInstanceOfType(RelationshipManager.class);
-    List<Relationship> rels = rm.getConfirmed(id);
+    ListAccess<Identity> list = rm.getConnections(id);
+    //List<Relationship> rels = rm.getConfirmed(id);
+    Identity[] identitys = list.load(0, list.getSize());
     List<Identity> ids = new ArrayList<Identity>();
 
-    for (Relationship rel : rels) {
-      ids.add(rel.getPartner(id));
+    for (Identity identity : identitys) {
+      ids.add(identity);
     }
 
     return ids;

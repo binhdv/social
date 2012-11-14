@@ -56,6 +56,8 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 public class AppsRestService implements ResourceContainer {
   
   private ApplicationRegistryService _applicationRegistryService;
+  private static final String[] SUPPORTED_FORMAT = new String[]{"json", "xml"};
+
   /**
    * constructor
    */
@@ -106,7 +108,7 @@ public class AppsRestService implements ResourceContainer {
   @Path("show.{format}")
   public Response showApps(@Context UriInfo uriInfo, @PathParam("format") String format) throws Exception {
     //TODO hoatle gets currentUser for filter
-    MediaType mediaType = Util.getMediaType(format);
+    MediaType mediaType = Util.getMediaType(format, SUPPORTED_FORMAT);
     AppList appList = showApps();
     return Util.getResponse(appList, uriInfo, mediaType, Response.Status.OK);
   }

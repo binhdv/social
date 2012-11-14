@@ -241,7 +241,7 @@ public class UIRelationshipActivity extends BaseUIActivity {
 
       Relationship relationship = uiRelationshipActivity.getRelationship();
       if (relationship != null && relationship.getStatus() == Type.PENDING) {
-        Utils.getRelationshipManager().confirm(relationship);
+        Utils.getRelationshipManager().confirm(relationship.getReceiver(),relationship.getSender());
         Utils.updateWorkingWorkSpace();
       }
     }
@@ -254,7 +254,7 @@ public class UIRelationshipActivity extends BaseUIActivity {
       UIRelationshipActivity uiRelationshipActivity = event.getSource();
       Relationship relationship = uiRelationshipActivity.getRelationship();
       if (relationship != null && relationship.getStatus() == Type.PENDING) {
-        Utils.getRelationshipManager().deny(relationship);
+        Utils.getRelationshipManager().deny(relationship.getReceiver(),relationship.getSender());
         Utils.updateWorkingWorkSpace();
       }
     }

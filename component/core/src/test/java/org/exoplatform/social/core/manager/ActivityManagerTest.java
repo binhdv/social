@@ -16,11 +16,7 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -30,7 +26,6 @@ import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.processor.MentionsProcessor;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
@@ -76,8 +71,6 @@ public class ActivityManagerTest extends AbstractCoreTest {
     jameIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "jame", true);
     paulIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "paul", true);
 
-    
-    
   }
 
   @Override
@@ -89,10 +82,6 @@ public class ActivityManagerTest extends AbstractCoreTest {
         LOG.warn("can not delete activity with id: " + activity.getId());
       }
     }
-    
-    RealtimeListAccess<ExoSocialActivity> demoActivities = activityManager.getActivitiesOfUserSpacesWithListAccess(demoIdentity);
-    assertEquals(0, demoActivities.getSize());
-    
     identityManager.deleteIdentity(rootIdentity);
     identityManager.deleteIdentity(johnIdentity);
     identityManager.deleteIdentity(maryIdentity);
@@ -137,7 +126,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
   }
   
   /**
-   * Test {@link ActivityManager#saveActivity(ExoSocialActivity)}
+   * Test {@link ActivityManager#saveActivityNoReturn(ExoSocialActivity)}
    * 
    * @throws Exception
    * @since 1.2.0-Beta3
@@ -156,71 +145,10 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
     assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
   }
-  
+
+
   /**
-   * Test for {@link ActivityManager#saveActivity(org.exoplatform.social.core.activity.model.ExoSocialActivity)}
-   * and {@link ActivityManager#saveActivity(Identity, org.exoplatform.social.core.activity.model.ExoSocialActivity)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public void testSaveActivity() throws ActivityStorageException {
-    //save mal-formed activity
-    {
-      ExoSocialActivity malformedActivity = new ExoSocialActivityImpl();
-      malformedActivity.setTitle("malform");
-      try {
-        activityManager.saveActivity(malformedActivity);
-        fail("Expecting IllegalArgumentException.");
-      } catch (IllegalArgumentException e) {
-        LOG.info("test with malfomred activity passes.");
-      }
-    }
-
-    {
-      final String activityTitle = "root activity";
-      ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
-      rootActivity.setTitle(activityTitle);
-      rootActivity.setUserId(rootIdentity.getId());
-      activityManager.saveActivity(rootActivity);
-
-      assertNotNull("rootActivity.getId() must not be null", rootActivity.getId());
-
-      //updates
-      rootActivity.setTitle("Hello World");
-      activityManager.updateActivity(rootActivity);
-
-      tearDownActivityList.add(rootActivity);
-    }
-
-    {
-      final String title = "john activity";
-      ExoSocialActivity johnActivity = new ExoSocialActivityImpl();
-      johnActivity.setTitle(title);
-      activityManager.saveActivity(johnIdentity, johnActivity);
-
-      tearDownActivityList.add(johnActivity);
-
-      assertNotNull("johnActivity.getId() must not be null", johnActivity.getId());
-    }
-
-    // updated and postedTime is optional
-    {
-      final String title = "test";
-      ExoSocialActivity activity = new ExoSocialActivityImpl();
-      activity.setUpdated(null);
-      activity.setPostedTime(null);
-      activity.setTitle(title);
-      activityManager.saveActivity(demoIdentity, activity);
-      tearDownActivityList.add(activity);
-      assertNotNull("activity.getId() must not be null", activity.getId());
-      assertNotNull("activity.getUpdated() must not be null", activity.getUpdated());
-      assertNotNull("activity.getPostedTime() must not be null", activity.getPostedTime());
-      assertEquals("activity.getTitle() must return: " + title, title, activity.getTitle());
-    }
-  }
-  
-  /**
-   * Test {@link ActivityManager#saveActivity(Identity, ExoSocialActivity)}
+   * Test {@link ActivityManager#saveActivityNoReturn(Identity, ExoSocialActivity)}
    * 
    * @throws Exception
    * @since 1.2.0-Beta3
@@ -231,7 +159,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
     activity.setUserId(userId);
-    activityManager.saveActivity(demoIdentity, activity);
+    activityManager.saveActivityNoReturn(demoIdentity, activity);
     
     activity = activityManager.getActivity(activity.getId());
     assertNotNull("activity must not be null", activity);
@@ -241,26 +169,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     tearDownActivityList.add(activity);
   }
   
-  /**
-   * Test {@link ActivityManager#getActivities(Identity, long, long)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testGetActivitiesWithOffsetLimit() throws Exception {
-    this.populateActivityMass(johnIdentity, 10);
-    List<ExoSocialActivity> johnActivities = activityManager.getActivities(johnIdentity, 0, 5);
-    assertNotNull("johnActivities must not be null", johnActivities);
-    assertEquals("johnActivities.size() must return: 5", 5, johnActivities.size());
-    
-    johnActivities = activityManager.getActivities(johnIdentity, 0, 10);
-    assertNotNull("johnActivities must not be null", johnActivities);
-    assertEquals("johnActivities.size() must return: 0", 10, johnActivities.size());
-    
-    johnActivities = activityManager.getActivities(johnIdentity, 0, 20);
-    assertNotNull("johnActivities must not be null", johnActivities);
-    assertEquals("johnActivities.size() must return: 10", 10, johnActivities.size());
-  }
+
 
   /**
    * Test {@link ActivityManager#getActivity(String)}
@@ -268,8 +177,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
    * @throws ActivityStorageException
    */
   public void testGetActivity() throws ActivityStorageException {
-      List<ExoSocialActivity> rootActivities = activityManager.getActivities(rootIdentity);
-      assertEquals("user's activities should have 0 element.", 0, rootActivities.size());
+      RealtimeListAccess<ExoSocialActivity> rootActivities = activityManager.getActivitiesWithListAccess(rootIdentity);
+      assertEquals("user's activities should have 0 element.", 0, rootActivities.getSize());
 
       String activityTitle = "title";
       String userId = rootIdentity.getId();
@@ -285,10 +194,10 @@ public class ActivityManagerTest extends AbstractCoreTest {
       assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
       assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
       
-      rootActivities = activityManager.getActivities(rootIdentity);
-      assertEquals("user's activities should have 1 element", 1, rootActivities.size());
+      rootActivities = activityManager.getActivitiesWithListAccess(rootIdentity);
+      assertEquals("user's activities should have 1 element", 1, rootActivities.getSize());
 
-      tearDownActivityList.addAll(rootActivities);
+      tearDownActivityList.addAll(Arrays.asList(rootActivities.load(0,1)));
   }
 
   /**
@@ -427,13 +336,13 @@ public class ActivityManagerTest extends AbstractCoreTest {
     comment.setUserId(demoIdentity.getId());
     activityManager.saveComment(activity, comment);
     
-    List<ExoSocialActivity> demoComments = activityManager.getComments(activity);
+    ExoSocialActivity[] demoComments = activityManager.getCommentsWithListAccess(activity).load(0, 10);
     assertNotNull("demoComments must not be null", demoComments);
-    assertEquals("demoComments.size() must return: 1", 1, demoComments.size());
+    assertEquals("demoComments.size() must return: 1", 1, demoComments.length);
     
-    assertEquals("demoComments.get(0).getTitle() must return: " + commentTitle, 
-                 commentTitle, demoComments.get(0).getTitle());
-    assertEquals("demoComments.get(0).getUserId() must return: " + demoIdentity.getId(), demoIdentity.getId(), demoComments.get(0).getUserId());
+    assertEquals("demoComments.get(0).getTitle() must return: " + commentTitle,
+            commentTitle, demoComments[0].getTitle());
+    assertEquals("demoComments.get(0).getUserId() must return: " + demoIdentity.getId(), demoIdentity.getId(), demoComments[0].getUserId());
 
     ExoSocialActivity gotParentActivity = activityManager.getParentActivity(comment);
     assertNotNull(gotParentActivity);
@@ -500,7 +409,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     
     activityManager.deleteComment(demoActivity, maryComment);
     
-    assertEquals("activityManager.getComments(demoActivity).size() must return: 0", 0, activityManager.getComments(demoActivity).size());
+    assertEquals("activityManager.getCommentsWithListAccess(demoActivity).getSize() must return: 0", 0, activityManager.getCommentsWithListAccess(demoActivity).getSize());
   }
   
   /**
@@ -594,15 +503,12 @@ public class ActivityManagerTest extends AbstractCoreTest {
                  demoListAccess.getNumberOfOlder(baseActivity));
   }
   
-  
   /**
    * Test {@link ActivityManager#getActivitiesOfConnectionsWithListAccess(Identity)}
    * 
    * @throws Exception
    * @since 1.2.0-Beta3
    */
-  
-  /**
   public void testGetActivitiesOfConnectionsWithListAccess() throws Exception {
     ExoSocialActivity baseActivity = null;
     for (int i = 0; i < 10; i ++) {
@@ -620,8 +526,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
     assertEquals("demoConnectionActivities.getSize() must return: 0", 0, demoConnectionActivities.getSize());
     
-    Relationship demoJohnRelationship = relationshipManager.invite(demoIdentity, johnIdentity);
-    relationshipManager.confirm(demoJohnRelationship);
+    Relationship demoJohnRelationship = relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.confirm(demoIdentity, johnIdentity);
     
     demoConnectionActivities = activityManager.getActivitiesOfConnectionsWithListAccess(demoIdentity);
     assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
@@ -642,8 +548,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
       }
     }
     
-    Relationship demoMaryRelationship = relationshipManager.invite(demoIdentity, maryIdentity);
-    relationshipManager.confirm(demoMaryRelationship);
+    Relationship demoMaryRelationship = relationshipManager.inviteToConnect(demoIdentity, maryIdentity);
+    relationshipManager.confirm(demoIdentity, maryIdentity);
     
     demoConnectionActivities = activityManager.getActivitiesOfConnectionsWithListAccess(demoIdentity);
     assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
@@ -653,11 +559,9 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals("demoConnectionActivities.getNumberOfOlder(baseActivity) must return: 15", 15,
                  demoConnectionActivities.getNumberOfOlder(baseActivity));
     
-    relationshipManager.remove(demoJohnRelationship);
-    relationshipManager.remove(demoMaryRelationship);
+    relationshipManager.delete(demoJohnRelationship);
+    relationshipManager.delete(demoMaryRelationship);
   }
-  
-  **/
   
   /**
    * Test {@link ActivityManager#getActivitiesOfUserSpacesWithListAccess(Identity)}
@@ -665,8 +569,6 @@ public class ActivityManagerTest extends AbstractCoreTest {
    * @throws Exception
    * @since 1.2.0-Beta3s
    */
-  
-  
   public void testGetActivitiesOfUserSpacesWithListAccess() throws Exception {
     Space space = this.getSpaceInstance(spaceService, 0);
     Identity spaceIdentity = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
@@ -754,10 +656,10 @@ public class ActivityManagerTest extends AbstractCoreTest {
     RealtimeListAccess<ExoSocialActivity> demoActivityFeed = activityManager.getActivityFeedWithListAccess(demoIdentity);
     assertEquals("demoActivityFeed.getSize() must be 8", 8, demoActivityFeed.getSize());
 
-    Relationship demoMaryConnection = relationshipManager.invite(demoIdentity, maryIdentity);
+    Relationship demoMaryConnection = relationshipManager.inviteToConnect(demoIdentity, maryIdentity);
     assertEquals(8, activityManager.getActivityFeedWithListAccess(demoIdentity).getSize());
 
-    relationshipManager.confirm(demoMaryConnection);
+    relationshipManager.confirm(demoIdentity, maryIdentity);
     RealtimeListAccess<ExoSocialActivity> demoActivityFeed2 = activityManager.getActivityFeedWithListAccess(demoIdentity);
     assertEquals("demoActivityFeed2.getSize() must return 11", 11, demoActivityFeed2.getSize());
     RealtimeListAccess<ExoSocialActivity> maryActivityFeed = activityManager.getActivityFeedWithListAccess(maryIdentity);
@@ -784,37 +686,11 @@ public class ActivityManagerTest extends AbstractCoreTest {
     RealtimeListAccess johnSpaceActivitiesFeed = activityManager.getActivitiesOfUserSpacesWithListAccess(johnIdentity);
     assertEquals("johnSpaceActivitiesFeed.getSize() must return 10", 10, johnSpaceActivitiesFeed.getSize());
 
-    relationshipManager.remove(demoMaryConnection);
+    relationshipManager.delete(demoMaryConnection);
     spaceService.deleteSpace(space);
   }
   
-  /**
-   * Test {@link ActivityManager#getComments(ExoSocialActivity)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public  void testGetCommentWithHtmlContent() throws ActivityStorageException {
-    String htmlString = "<span><strong>foo</strong>bar<script>zed</script></span>";
-    String htmlRemovedString = "<span><strong>foo</strong>bar&lt;script&gt;zed&lt;/script&gt;</span>";
-    
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle("blah blah");
-    activityManager.saveActivity(rootIdentity, activity);
 
-    ExoSocialActivity comment = new ExoSocialActivityImpl();
-    comment.setTitle(htmlString);
-    comment.setUserId(rootIdentity.getId());
-    comment.setBody(htmlString);
-    activityManager.saveComment(activity, comment);
-    assertNotNull("comment.getId() must not be null", comment.getId());
-
-    List<ExoSocialActivity> comments = activityManager.getComments(activity);
-    assertEquals(1, comments.size());
-    assertEquals(htmlRemovedString, comments.get(0).getBody());
-    assertEquals(htmlRemovedString, comments.get(0).getTitle());
-    tearDownActivityList.add(activity);    
-  }
-  
   /**
    * 
    * 
@@ -823,7 +699,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
   public  void testGetComment() throws ActivityStorageException {
     ExoSocialActivity activity = new ExoSocialActivityImpl();;
     activity.setTitle("blah blah");
-    activityManager.saveActivity(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
 
     ExoSocialActivity comment = new ExoSocialActivityImpl();;
     comment.setTitle("comment blah blah");
@@ -846,7 +722,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
   public  void testGetComments() throws ActivityStorageException {
     ExoSocialActivity activity = new ExoSocialActivityImpl();;
     activity.setTitle("blah blah");
-    activityManager.saveActivity(rootIdentity, activity);
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
 
     List<ExoSocialActivity> comments = new ArrayList<ExoSocialActivity>();
     for (int i = 0; i < 10; i++) {
@@ -882,7 +758,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
       ExoSocialActivity activity1 = new ExoSocialActivityImpl();;
       activity1.setUserId(demoIdentity.getId());
       activity1.setTitle(title);
-      activityManager.saveActivity(demoIdentity, activity1);
+      activityManager.saveActivityNoReturn(demoIdentity, activity1);
 
       final int numberOfComments = 10;
       final String commentTitle = "Activity Comment";
@@ -893,9 +769,9 @@ public class ActivityManagerTest extends AbstractCoreTest {
         activityManager.saveComment(activity1, comment);
       }
 
-      List<ExoSocialActivity> storedCommentList = activityManager.getComments(activity1);
+      ExoSocialActivity[] storedCommentList = activityManager.getCommentsWithListAccess(activity1).load(0, 10);
 
-      assertEquals("storedCommentList.size() must return: " + numberOfComments, numberOfComments, storedCommentList.size());
+      assertEquals("storedCommentList.size() must return: " + numberOfComments, numberOfComments, storedCommentList.length);
 
       //delete random 2 comments
       int index1 = new Random().nextInt(numberOfComments - 1);
@@ -904,15 +780,15 @@ public class ActivityManagerTest extends AbstractCoreTest {
         index2 = new Random().nextInt(numberOfComments - 1);
       }
 
-      ExoSocialActivity tobeDeletedComment1 = storedCommentList.get(index1);
-      ExoSocialActivity tobeDeletedComment2 = storedCommentList.get(index2);
+      ExoSocialActivity tobeDeletedComment1 = storedCommentList[index1];
+      ExoSocialActivity tobeDeletedComment2 = storedCommentList[index2];
 
       activityManager.deleteComment(activity1.getId(), tobeDeletedComment1.getId());
       activityManager.deleteComment(activity1.getId(), tobeDeletedComment2.getId());
 
-      List<ExoSocialActivity> afterDeletedCommentList = activityManager.getComments(activity1);
+      RealtimeListAccess<ExoSocialActivity> afterDeletedCommentList = activityManager.getCommentsWithListAccess(activity1);
 
-      assertEquals("afterDeletedCommentList.size() must return: " + (numberOfComments - 2), numberOfComments - 2, afterDeletedCommentList.size());
+      assertEquals("afterDeletedCommentList.size() must return: " + (numberOfComments - 2), numberOfComments - 2, afterDeletedCommentList.getSize());
 
 
       tearDownActivityList.add(activity1);
@@ -922,393 +798,22 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
  /**
   * Unit Test for:
-  * {@link ActivityManager#getActivities(Identity)}
-  * {@link ActivityManager#getActivities(Identity, long, long)}
-  * 
+  * {@link ActivityManager#getActivitiesWithListAccess(org.exoplatform.social.core.identity.model.Identity)}
+  *
   * @throws ActivityStorageException
   */
  public void testGetActivities() throws ActivityStorageException {
-   List<ExoSocialActivity> rootActivityList = activityManager.getActivities(rootIdentity);
-   assertNotNull("rootActivityList must not be null", rootActivityList);
-   assertEquals(0, rootActivityList.size());
+   RealtimeListAccess<ExoSocialActivity> activitiesWithListAccess = activityManager.getActivitiesWithListAccess(rootIdentity);
+   assertNotNull("activitiesWithListAccess must not be null", activitiesWithListAccess);
+   assertEquals(0, activitiesWithListAccess.getSize());
 
    populateActivityMass(rootIdentity, 30);
-   List<ExoSocialActivity> activities = activityManager.getActivities(rootIdentity);
-   assertNotNull("activities must not be null", activities);
-   assertEquals(20, activities.size());
+   activitiesWithListAccess = activityManager.getActivitiesWithListAccess(rootIdentity);
+   assertNotNull("activities must not be null", activitiesWithListAccess);
 
-   List<ExoSocialActivity> allActivities = activityManager.getActivities(rootIdentity, 0, 30);
-
-   assertEquals(30, allActivities.size());
+   assertEquals(30, activitiesWithListAccess.getSize());
  }
 
- /**
-  * Unit Test for:
-  * <p>
-  * {@link ActivityManager#getActivitiesOfConnections(Identity)}
-  * 
-  * @throws Exception
-  */
- public void testGetActivitiesOfConnections() throws Exception {
-   this.populateActivityMass(johnIdentity, 10);
-   
-   List<ExoSocialActivity> demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity);
-   assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
-   assertEquals("demoConnectionActivities.size() must return: 0", 0, demoConnectionActivities.size());
-   
-   Relationship demoJohnRelationship = relationshipManager.invite(demoIdentity, johnIdentity);
-   relationshipManager.confirm(demoJohnRelationship);
-   
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity);
-   assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
-   assertEquals("demoConnectionActivities.size() must return: 10", 10, demoConnectionActivities.size());
-   
-   this.populateActivityMass(maryIdentity, 10);
-   
-   Relationship demoMaryRelationship = relationshipManager.invite(demoIdentity, maryIdentity);
-   relationshipManager.confirm(demoMaryRelationship);
-   
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity);
-   assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
-   assertEquals("demoConnectionActivities.size() must return: 20", 20, demoConnectionActivities.size());
-   
-   relationshipManager.remove(demoJohnRelationship);
-   relationshipManager.remove(demoMaryRelationship);
- }
- 
- /**
-  * Test {@link ActivityManager#getActivitiesOfConnections(Identity, int, int)}
-  * 
-  * @throws Exception
-  * @since 1.2.0-Beta3
-  */
- public void testGetActivitiesOfConnectionswithOffsetLimit() throws Exception {
-this.populateActivityMass(johnIdentity, 10);
-   
-   List<ExoSocialActivity> demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 20);
-   assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
-   assertEquals("demoConnectionActivities.size() must return: 0", 0, demoConnectionActivities.size());
-   
-   Relationship demoJohnRelationship = relationshipManager.invite(demoIdentity, johnIdentity);
-   relationshipManager.confirm(demoJohnRelationship);
-   
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 5);
-   assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
-   assertEquals("demoConnectionActivities.size() must return: 5", 5, demoConnectionActivities.size());
-   
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 20);
-   assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
-   assertEquals("demoConnectionActivities.size() must return: 10", 10, demoConnectionActivities.size());
-   
-   this.populateActivityMass(maryIdentity, 10);
-   
-   Relationship demoMaryRelationship = relationshipManager.invite(demoIdentity, maryIdentity);
-   relationshipManager.confirm(demoMaryRelationship);
-   
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 10);
-   assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
-   assertEquals("demoConnectionActivities.size() must return: 10", 10, demoConnectionActivities.size());
-   
-   demoConnectionActivities = activityManager.getActivitiesOfConnections(demoIdentity, 0, 20);
-   assertNotNull("demoConnectionActivities must not be null", demoConnectionActivities);
-   assertEquals("demoConnectionActivities.size() must return: 20", 20, demoConnectionActivities.size());
-   
-   relationshipManager.remove(demoJohnRelationship);
-   relationshipManager.remove(demoMaryRelationship);
- }
-
- /**
-  * Unit Test for:
-  * <p>
-  * {@link ActivityManager#getActivitiesOfUserSpaces(Identity)}
-  * 
-  * @throws Exception
-  */
- public void testGetActivitiesOfUserSpaces() throws Exception {
-   Space space = this.getSpaceInstance(spaceService, 0);
-   Identity spaceIdentity = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
-   
-   int totalNumber = 10;
-   
-   this.populateActivityMass(spaceIdentity, totalNumber);
-   
-   List<ExoSocialActivity> demoActivities = activityManager.getActivitiesOfUserSpaces(demoIdentity);
-   assertNotNull("demoActivities must not be null", demoActivities);
-   assertEquals("demoActivities.size() must return: 10", 10, demoActivities.size());
-   
-   Space space2 = this.getSpaceInstance(spaceService, 1);
-   Identity spaceIdentity2 = this.identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space2.getPrettyName(), false);
-   
-   this.populateActivityMass(spaceIdentity2, totalNumber);
-   
-   demoActivities = activityManager.getActivitiesOfUserSpaces(demoIdentity);
-   assertNotNull("demoActivities must not be null", demoActivities);
-   assertEquals("demoActivities.size() must return: 20", 20, demoActivities.size());
-   
-   demoActivities = activityManager.getActivitiesOfUserSpaces(maryIdentity);
-   assertNotNull("demoActivities must not be null", demoActivities);
-   assertEquals("demoActivities.size() must return: 0", 0, demoActivities.size());
-   
-   spaceService.deleteSpace(space);
-   spaceService.deleteSpace(space2);
- }
-
-  /**
-   * Test {@link ActivityManager#getActivities(Identity, long, long)}
-   * 
-   * @throws ActivityStorageException
-   */
-  public void testGetActivitiesByPagingWithoutCreatingComments() throws ActivityStorageException {
-    final int totalActivityCount = 9;
-    final int retrievedCount = 7;
-
-    this.populateActivityMass(johnIdentity, totalActivityCount);
-
-    List<ExoSocialActivity> activities = activityManager.getActivities(johnIdentity, 0, retrievedCount);
-    assertEquals(retrievedCount, activities.size());
-  }
-
-  /**
-   * Test {@link ActivityManager#getActivityFeed(Identity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testGetActivityFeed() throws Exception {
-    this.populateActivityMass(demoIdentity, 3);
-    this.populateActivityMass(maryIdentity, 3);
-    this.populateActivityMass(johnIdentity, 2);
-
-    Space space = this.getSpaceInstance(spaceService, 0);
-    Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
-    populateActivityMass(spaceIdentity, 5);
-
-    List<ExoSocialActivity> demoActivityFeed = activityManager.getActivityFeed(demoIdentity);
-    assertEquals("demoActivityFeed.size() must be 8", 8, demoActivityFeed.size());
-
-    Relationship demoMaryConnection = relationshipManager.invite(demoIdentity, maryIdentity);
-    assertEquals(8, activityManager.getActivityFeedWithListAccess(demoIdentity).getSize());
-
-    relationshipManager.confirm(demoMaryConnection);
-    List<ExoSocialActivity> demoActivityFeed2 = activityManager.getActivityFeed(demoIdentity);
-    assertEquals("demoActivityFeed2.size() must return 11", 11, demoActivityFeed2.size());
-    List<ExoSocialActivity> maryActivityFeed = activityManager.getActivityFeed(maryIdentity);
-    assertEquals("maryActivityFeed.size() must return 6", 6, maryActivityFeed.size());
-
-    relationshipManager.remove(demoMaryConnection);
-    spaceService.deleteSpace(space);
-  }
-  
-  /**
-   * Test {@link ActivityManager#removeLike(ExoSocialActivity, Identity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testRemoveLike() throws Exception {
-    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
-    demoActivity.setTitle("demo activity");
-    demoActivity.setUserId(demoActivity.getId());
-    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
-    tearDownActivityList.add(demoActivity);
-    
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-
-    assertEquals("demoActivity.getLikeIdentityIds() must return: 0",
-                 0, demoActivity.getLikeIdentityIds().length);
-    
-    activityManager.saveLike(demoActivity, johnIdentity);
-    
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-    assertEquals("demoActivity.getLikeIdentityIds().length must return: 1", 1, demoActivity.getLikeIdentityIds().length);
-    
-    activityManager.removeLike(demoActivity, johnIdentity);
-    
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-    assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
-    
-    activityManager.removeLike(demoActivity, maryIdentity);
-    
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-    assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
-    
-    activityManager.removeLike(demoActivity, rootIdentity);
-    
-    demoActivity = activityManager.getActivity(demoActivity.getId());
-    assertEquals("demoActivity.getLikeIdentityIds().length must return: 0", 0, demoActivity.getLikeIdentityIds().length);
-  }
-  
-  /**
-   * Test {@link ActivityManager#recordActivity(Identity, String, String)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testRecordActivityWithTypeTitle() throws Exception {
-    String DEFAULT_ACTIVITY_TYPE = "DEFAULT_ACTIVITY";
-    String RELATIONSHIP_ACTIVITY_TYPE = "exosocial:relationship";
-    String DOC_ACTIVITY_TYPE = "DOC_ACTIVITY";
-    String LINK_ACTIVITY_TYPE = "LINK_ACTIVITY";
-    String EMOTION_ACTIVITY_TYPE = "EMOTION_ACTIVITY";
-    
-    String activityTitle = "activity title";
-    String userId = demoIdentity.getId();
-    
-    ExoSocialActivity activity = null;
-    
-    activity = activityManager.recordActivity(demoIdentity, DEFAULT_ACTIVITY_TYPE, activityTitle);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + DEFAULT_ACTIVITY_TYPE, DEFAULT_ACTIVITY_TYPE, activity.getType());
-    
-    activity = activityManager.recordActivity(demoIdentity, RELATIONSHIP_ACTIVITY_TYPE, activityTitle);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + RELATIONSHIP_ACTIVITY_TYPE, RELATIONSHIP_ACTIVITY_TYPE, activity.getType());
-    
-    activity = activityManager.recordActivity(demoIdentity, DOC_ACTIVITY_TYPE, activityTitle);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + DOC_ACTIVITY_TYPE, DOC_ACTIVITY_TYPE, activity.getType());
-    
-    activity = activityManager.recordActivity(demoIdentity, LINK_ACTIVITY_TYPE, activityTitle);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + LINK_ACTIVITY_TYPE, LINK_ACTIVITY_TYPE, activity.getType());
-    
-    activity = activityManager.recordActivity(demoIdentity, EMOTION_ACTIVITY_TYPE, activityTitle);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + EMOTION_ACTIVITY_TYPE, EMOTION_ACTIVITY_TYPE, activity.getType());
-  }
-  
-  /**
-   * Test {@link ActivityManager#recordActivity(Identity, String, String, String)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testRecordActivityWithTypeTitleBody() throws Exception {
-    String DEFAULT_ACTIVITY_TYPE = "DEFAULT_ACTIVITY";
-    String RELATIONSHIP_ACTIVITY_TYPE = "exosocial:relationship";
-    String DOC_ACTIVITY_TYPE = "DOC_ACTIVITY";
-    String LINK_ACTIVITY_TYPE = "LINK_ACTIVITY";
-    String EMOTION_ACTIVITY_TYPE = "EMOTION_ACTIVITY";
-    
-    String activityTitle = "activity title";
-    String userId = demoIdentity.getId();
-    String activityBody = "activity body";
-    
-    ExoSocialActivity activity = null;
-    
-    activity = activityManager.recordActivity(demoIdentity, DEFAULT_ACTIVITY_TYPE, activityTitle, activityBody);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + DEFAULT_ACTIVITY_TYPE, DEFAULT_ACTIVITY_TYPE, activity.getType());
-    assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
-    
-    activity = activityManager.recordActivity(demoIdentity, RELATIONSHIP_ACTIVITY_TYPE, activityTitle, activityBody);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + RELATIONSHIP_ACTIVITY_TYPE, RELATIONSHIP_ACTIVITY_TYPE, activity.getType());
-    assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
-    
-    activity = activityManager.recordActivity(demoIdentity, DOC_ACTIVITY_TYPE, activityTitle, activityBody);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + DOC_ACTIVITY_TYPE, DOC_ACTIVITY_TYPE, activity.getType());
-    assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
-    
-    activity = activityManager.recordActivity(demoIdentity, LINK_ACTIVITY_TYPE, activityTitle, activityBody);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + LINK_ACTIVITY_TYPE, LINK_ACTIVITY_TYPE, activity.getType());
-    assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
-    
-    activity = activityManager.recordActivity(demoIdentity, EMOTION_ACTIVITY_TYPE, activityTitle, activityBody);
-    tearDownActivityList.add(activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    assertEquals("activity.getType() must return: " + EMOTION_ACTIVITY_TYPE, EMOTION_ACTIVITY_TYPE, activity.getType());
-    assertEquals("activity.getBody() must return: " + activityBody, activityBody, activity.getBody());
-  }
-  
-  /**
-   * Test {@link ActivityManager#recordActivity(Identity, ExoSocialActivity))}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testRecordActivity() throws Exception {
-    String activityTitle = "activity title";
-    String userId = demoIdentity.getId();
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    activity.setTitle(activityTitle);
-    activity.setUserId(userId);
-    activityManager.recordActivity(demoIdentity, activity);
-    
-    activity = activityManager.getActivity(activity.getId());
-    assertNotNull("activity must not be null", activity);
-    assertEquals("activity.getTitle() must return: " + activityTitle, activityTitle, activity.getTitle());
-    assertEquals("activity.getUserId() must return: " + userId, userId, activity.getUserId());
-    
-    tearDownActivityList.add(activity);
-  }
-  
-  /**
-   * Test {@link ActivityManager#getActivitiesCount(Identity)}
-   * 
-   * @throws Exception
-   * @since 1.2.0-Beta3
-   */
-  public void testGetActivitiesCount() throws Exception {
-    int count = activityManager.getActivitiesCount(rootIdentity);
-    assertEquals("count must be: 0", 0, count);
-
-    populateActivityMass(rootIdentity, 30);
-    count = activityManager.getActivitiesCount(rootIdentity);
-    assertEquals("count must be: 30", 30, count);
-  }
-  
   /**
    *
    */

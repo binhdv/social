@@ -288,45 +288,6 @@ public class LinkProvider {
   }
 
   /**
-   * Gets avatar image uri of profile in a portalContainer.
-   *
-   * @param profile
-   * @param portalContainer
-   * @return null or an url if available
-   * @deprecated use {@link Profile#getAvatarUrl()}. Will be removed at 1.3.x
-   */
-  public static String getAvatarImageSource(final PortalContainer portalContainer, final Profile profile) {
-    final AvatarAttachment avatarAttachment = (AvatarAttachment) profile.getProperty(Profile.AVATAR);
-    if (avatarAttachment != null) {
-      return buildAvatarImageUri(portalContainer, avatarAttachment);
-    }
-    return null;
-  }
-  
-  /**
-   * Gets avatar image uri of profile.
-   *
-   * @param profile
-   * @return null or an url if available
-   * @deprecated use {@link Profile#getAvatarUrl()}. Will be removed at 1.3.x
-   */
-  public static String getAvatarImageSource(final Profile profile) {
-    String avatarUrl = profile.getAvatarUrl();
-    if (avatarUrl != null) {
-      return avatarUrl;
-    }
-
-    final AvatarAttachment avatarAttachment = (AvatarAttachment) profile.getProperty(Profile.AVATAR);
-    if (avatarAttachment != null) {
-      avatarUrl = buildAvatarImageUri(avatarAttachment);
-      profile.setAvatarUrl(avatarUrl);
-      getIdentityManager().saveProfile(profile);
-      return avatarUrl;
-    }
-    return null;
-  }
-
-  /**
    * Builds profile uri from userName and portalOwner.
    *
    * @param userName

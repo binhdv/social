@@ -37,6 +37,9 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
  */
 @Path("social/linkshare")
 public class LinkShareRestService implements ResourceContainer {
+
+  private static final String[] SUPPORTED_FORMAT = new String[]{"json", "xml"};
+
   /**
    * constructor
    */
@@ -81,7 +84,7 @@ public class LinkShareRestService implements ResourceContainer {
   public Response getLink(@Context UriInfo uriInfo,
                           @PathParam("format") String format,
                           LinkShareRequest linkShareRequest) throws Exception {
-    MediaType mediaType = Util.getMediaType(format);
+    MediaType mediaType = Util.getMediaType(format, SUPPORTED_FORMAT);
     if (linkShareRequest == null || !linkShareRequest.verify()) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }

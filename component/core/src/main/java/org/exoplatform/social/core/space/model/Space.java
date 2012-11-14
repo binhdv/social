@@ -85,16 +85,6 @@ public class Space {
    */
   private String avatarUrl;
   
-  /**
-   * The creator of space.
-   * 
-   * @since 1.2.0-GA
-   * @deprecated Use {@link managers} instead.
-   *             Will be removed by 1.2.8
-   */
-  @Deprecated
-  private String creator;
-  
   /** 
    * The managers of a space.
    * 
@@ -191,16 +181,6 @@ public class Space {
    */
   public String getDisplayName() {
     return displayName;
-  }
-
-  /**
-   * Gets space name id for used as space url, space identity remote id.
-   *
-   * @return
-   * @deprecated use #getPrettyName() instead. To be removed at 1.3.x
-   */
-  public String getName() {
-    return getPrettyName();
   }
 
   /**
@@ -487,32 +467,6 @@ public class Space {
    */
   public void setAvatarUrl(String avatarUrl) {
     this.avatarUrl = avatarUrl;
-  }
-  
-  /**
-   * Gets the creator of a space.
-   *  
-   * @return
-   * @since 1.2.0-GA
-   * @deprecated Use {@link #getManagers()} instead.
-   *             Will be removed by 1.2.8
-   */
-  @Deprecated
-  public String getCreator() {
-    return creator;
-  }
-
-  /**
-   * Sets the creator of a space.
-   *  
-   * @return
-   * @since 1.2.0-GA
-   * @deprecated Use {@link #getManagers()} instead.
-   *             Will be removed by 1.2.8
-   */
-  @Deprecated
-  public void setCreator(String creator) {
-    this.creator = creator;
   }
   
   /**

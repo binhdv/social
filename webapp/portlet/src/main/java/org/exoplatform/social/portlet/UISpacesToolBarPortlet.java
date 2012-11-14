@@ -17,6 +17,7 @@
 package org.exoplatform.social.portlet;
 
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +31,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceURL;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.Visibility;
 import org.exoplatform.portal.mop.navigation.GenericScope;
@@ -105,7 +107,8 @@ public class UISpacesToolBarPortlet extends UIPortletApplication {
 
   public List<UserNavigation> getSpaceNavigations() throws Exception {
     String remoteUser = getUserId();
-    List<Space> spaces = getSpaceService().getAccessibleSpaces(remoteUser);
+    ListAccess<Space> spaceListAccess = getSpaceService().getAccessibleSpacesWithListAccess(remoteUser);
+    List<Space> spaces = Arrays.asList(spaceListAccess.load(0, spaceListAccess.getSize()));
 
     UserPortal userPortal = SpaceUtils.getUserPortal();
     List<UserNavigation> allNavigations = userPortal.getNavigations();

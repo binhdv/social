@@ -36,8 +36,11 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.shindig.social.opensocial.model.Activity;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.xml.PortalContainerInfo;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -96,7 +99,9 @@ public class PeopleRestService implements ResourceContainer{
   
   /** Number of default limit activities. */
   private static final int DEFAULT_LIMIT = 20;
-  
+
+  private static final String[] SUPPORTED_FORMAT = new String[]{"json", "xml"};
+
   private String portalName_;
   private IdentityManager identityManager;
   private ActivityManager activityManager;
@@ -123,9 +128,9 @@ public class PeopleRestService implements ResourceContainer{
                     @QueryParam("typeOfRelation") String typeOfRelation,
                     @QueryParam("spaceURL") String spaceURL,
                     @PathParam("format") String format) throws Exception {
-    MediaType mediaType = Util.getMediaType(format);
+    MediaType mediaType = Util.getMediaType(format, SUPPORTED_FORMAT);
     List<Identity> excludedIdentityList = new ArrayList<Identity>();
-    excludedIdentityList.add(Util.getViewerIdentity(currentUser));
+    excludedIdentityList.add(Util.getViewerIdentity(PortalContainer.getCurrentPortalContainerName(),currentUser));
     UserNameList nameList = new UserNameList();
     ProfileFilter filter = new ProfileFilter();
     
@@ -142,11 +147,11 @@ public class PeopleRestService implements ResourceContainer{
 
     Space space = getSpaceService().getSpaceByUrl(spaceURL);
     if (PENDING_STATUS.equals(typeOfRelation)) {
-      addToNameList(currentIdentity, getRelationshipManager().getPending(currentIdentity, identities), nameList);
+      addToNameListFromListAccess(currentIdentity, getRelationshipManager().getOutgoing(currentIdentity), nameList);
     } else if (INCOMING_STATUS.equals(typeOfRelation)) {
-      addToNameList(currentIdentity, getRelationshipManager().getIncoming(currentIdentity, identities), nameList);
+      addToNameListFromListAccess(currentIdentity, getRelationshipManager().getIncomingWithListAccess(currentIdentity), nameList);
     } else if (CONFIRMED_STATUS.equals(typeOfRelation)){
-      addToNameList(currentIdentity, getRelationshipManager().getConfirmed(currentIdentity, identities), nameList);
+      addToNameListFromListAccess(currentIdentity, getRelationshipManager().getConnections(currentIdentity), nameList);
     } else if (SPACE_MEMBER.equals(typeOfRelation)) {  // Use in search space member
       addSpaceUserToList (identities, nameList, space, typeOfRelation);
     } else if (USER_TO_INVITE.equals(typeOfRelation)) { 
@@ -410,7 +415,7 @@ public class PeopleRestService implements ResourceContainer{
    * @param currentUserName Name of current user.
    * @param userId Id of user is specified.
    * @param format
-   * @param update
+   * @param updatedType
    * @return Information of people appropriate focus user.
    * @throws Exception
    */
@@ -423,7 +428,7 @@ public class PeopleRestService implements ResourceContainer{
                                 @PathParam("format") String format,
                                 @QueryParam("updatedType") String updatedType) throws Exception {
     PeopleInfo peopleInfo = new PeopleInfo();
-    MediaType mediaType = Util.getMediaType(format);
+    MediaType mediaType = Util.getMediaType(format, SUPPORTED_FORMAT);
     portalName_ = portalName;
     Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME,
                                                                    userId, false);
@@ -434,15 +439,15 @@ public class PeopleRestService implements ResourceContainer{
     if (updatedType != null) {
       Relationship rel = getRelationshipManager().get(currentIdentity, identity);
       if (ACCEPT_ACTION.equals(updatedType)) { // Accept or Deny
-        getRelationshipManager().confirm(rel);
+        getRelationshipManager().confirm(rel.getReceiver(), rel.getSender());
       } else if (DENY_ACTION.equals(updatedType)) {
-        getRelationshipManager().deny(rel);
+        getRelationshipManager().deny(currentIdentity, identity);
       } else if (REVOKE_ACTION.equals(updatedType)) {
-        getRelationshipManager().deny(rel);
+        getRelationshipManager().deny(currentIdentity, identity);
       } else if (INVITE_ACTION.equals(updatedType)) {
-        getRelationshipManager().invite(currentIdentity, identity);
+        getRelationshipManager().inviteToConnect(currentIdentity, identity);
       } else if (REMOVE_ACTION.equals(updatedType)) {
-        getRelationshipManager().remove(rel);
+        getRelationshipManager().delete(rel);
       }
     }
     
@@ -472,6 +477,14 @@ public class PeopleRestService implements ResourceContainer{
     }
   }
   
+  private void addToNameListFromListAccess(Identity currentIdentity, ListAccess<Identity> identitiesHasRelation, UserNameList nameList) throws Exception {
+    Identity[] identities = identitiesHasRelation.load(0, identitiesHasRelation.getSize());
+    for (int i=0;i<identities.length;i++){
+      String fullName = identities[i].getProfile().getFullName();
+      nameList.addName(fullName);
+    }
+  }
+  
   private void addSpaceUserToList (List<Identity> identities, UserNameList nameList,
                                    Space space, String typeOfRelation) throws SpaceException {
     SpaceService spaceSrv = getSpaceService(); 
@@ -481,8 +494,8 @@ public class PeopleRestService implements ResourceContainer{
       if (SPACE_MEMBER.equals(typeOfRelation) && spaceSrv.isMember(space, userName)) {
         nameList.addName(fullName);
         continue;
-      } else if (USER_TO_INVITE.equals(typeOfRelation) && !spaceSrv.isInvited(space, userName)
-                 && !spaceSrv.isPending(space, userName) && !spaceSrv.isMember(space, userName)) {
+      } else if (USER_TO_INVITE.equals(typeOfRelation) && !spaceSrv.isInvitedUser(space, userName)
+                 && !spaceSrv.isPendingUser(space, userName) && !spaceSrv.isMember(space, userName)) {
         nameList.addName(userName);
       }
     }
@@ -580,7 +593,7 @@ public class PeopleRestService implements ResourceContainer{
     private List<String> _names;
     /**
      * Sets user name list
-     * @param user name list
+     * @param names username list
      */
     public void setNames(List<String> names) {
       this._names = names; 
@@ -596,7 +609,7 @@ public class PeopleRestService implements ResourceContainer{
     
     /**
      * Add name to user name list
-     * @param user name
+     * @param name username
      */
     public void addName(String name) {
       if (_names == null) {

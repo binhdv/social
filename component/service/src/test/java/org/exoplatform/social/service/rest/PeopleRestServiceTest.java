@@ -38,12 +38,13 @@ public class PeopleRestServiceTest  extends AbstractResourceTest {
   public void setUp() throws Exception {
     super.setUp();
     peopleRestService = new PeopleRestService();
-    registry(peopleRestService);
+    //registry(peopleRestService);
+    addResource(peopleRestService.getClass(),null);
   }
 
   public void tearDown() throws Exception {
     super.tearDown();
-    unregistry(peopleRestService);
+    removeResource(peopleRestService.getClass());
   }
 
   public void testSuggestUsernames() throws Exception {

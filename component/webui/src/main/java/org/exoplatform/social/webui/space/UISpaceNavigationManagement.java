@@ -114,7 +114,7 @@ public class UISpaceNavigationManagement extends UIContainer {
 
 
   public void reloadTreeData() throws Exception {
-    UserPortal userPortal = Util.getUIPortalApplication().getUserPortalConfig().getUserPortal();
+    UserPortal userPortal = Util.getPortalRequestContext().getUserPortalConfig().getUserPortal();
     SpaceService spaceService = getApplicationComponent(SpaceService.class);
     String spaceUrl = SpaceUtils.getSpaceUrl();
     Space space = spaceService.getSpaceByUrl(spaceUrl);

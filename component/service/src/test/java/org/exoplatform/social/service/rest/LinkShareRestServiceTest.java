@@ -39,13 +39,14 @@ public class LinkShareRestServiceTest extends AbstractResourceTest {
     super.setUp();
 
     linkShareRestService = new LinkShareRestService();
-    registry(linkShareRestService);
+    //registry(linkShareRestService);
+    addResource(linkShareRestService.getClass(),null);
   }
 
   public void tearDown() throws Exception {
     super.tearDown();
 
-    unregistry(linkShareRestService);
+    removeResource(linkShareRestService.getClass());
   }
 
   public void testJsonRightLink() throws Exception {

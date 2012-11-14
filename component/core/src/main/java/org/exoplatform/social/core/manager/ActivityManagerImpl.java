@@ -16,14 +16,9 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
-import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -104,7 +99,7 @@ public class ActivityManagerImpl implements ActivityManager {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setType(activityType);
     activity.setTitle(activityTitle);
-    saveActivity(streamOwner, activity);
+    saveActivityNoReturn(streamOwner, activity);
   }
 
   /**
@@ -252,172 +247,6 @@ public class ActivityManagerImpl implements ActivityManager {
   public void addProcessorPlugin(BaseActivityProcessorPlugin plugin) {
     this.addProcessor(plugin);
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity saveActivity(Identity streamOwner, ExoSocialActivity newActivity) {
-    saveActivityNoReturn(streamOwner, newActivity);
-    return newActivity;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity saveActivity(ExoSocialActivity newActivity) {
-    saveActivityNoReturn(newActivity);
-    return newActivity;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<ExoSocialActivity> getActivities(Identity identity) throws ActivityStorageException {
-    List<ExoSocialActivity> activityList = Collections.emptyList();
-    try {
-      ExoSocialActivity[] activities = getActivitiesWithListAccess(identity).load(0, DEFAULT_LIMIT);
-      activityList = Arrays.asList(activities);
-    } catch (Exception e) {
-      LOG.warn("Failed to get activities by identity: " + identity);
-    }
-    return activityList;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<ExoSocialActivity> getActivities(Identity identity,
-                                               long start, long limit) throws ActivityStorageException {
-    //validateStartLimit(start, limit);
-    return activityStorage.getUserActivities(identity, start, limit);
-  }
-
-  /**
-   * {@inheritDoc}
-   * The result list is returned with 30 maximum activities.
-   */
-  public List<ExoSocialActivity> getActivitiesOfConnections(Identity ownerIdentity) throws ActivityStorageException {
-    List<ExoSocialActivity> activityList = Collections.emptyList();
-    try {
-      ExoSocialActivity[] activities = getActivitiesOfConnectionsWithListAccess(ownerIdentity).load(0, 30);
-      activityList = Arrays.asList(activities);
-    } catch (Exception e) {
-      LOG.warn("Failed to get activities of connections!");
-    }
-    return activityList;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<ExoSocialActivity> getActivitiesOfConnections(Identity ownerIdentity,
-                                                            int offset, int limit) throws ActivityStorageException {
-    validateStartLimit(offset, limit);
-    List<Identity> connectionList = null;
-    try {
-      ListAccess<Identity> connectionsWithListAccess = identityManager.getConnectionsWithListAccess(ownerIdentity);
-      connectionList = Arrays.asList(connectionsWithListAccess.load(0, connectionsWithListAccess.getSize()));
-    } catch (Exception e) {
-      LOG.error("Failed to getActivitiesOfIdentities of: " + ownerIdentity.getRemoteId(), e);
-    }
-    return activityStorage.getActivitiesOfIdentities(connectionList, offset, limit);
-  }
-
-
-  /**
-   * {@inheritDoc}
-   * By default, the activity list is composed of all spaces' activities.
-   * Each activity list of the space contains maximum 20 activities
-   * and are returned sorted starting from the most recent.
-   */
-  public List<ExoSocialActivity> getActivitiesOfUserSpaces(Identity ownerIdentity) {
-    return getActivitiesOfUserSpacesWithListAccess(ownerIdentity).loadAsList(0, DEFAULT_LIMIT);
-  }
-
-
-  /**
-   * {@inheritDoc}
-   * Return maximum number of activities: 40
-   */
-  public List<ExoSocialActivity> getActivityFeed(Identity identity) {
-    return getActivityFeedWithListAccess(identity).loadAsList(0, DEFAULT_LIMIT * 2);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void removeLike(ExoSocialActivity existingActivity, Identity existingIdentity) {
-    deleteLike(existingActivity, existingIdentity);
-  }
-
-/**
-   * {@inheritDoc}
-   */
-  public List<ExoSocialActivity> getComments(ExoSocialActivity existingActivity) {
-    return getCommentsWithListAccess(existingActivity).loadAsList(0, DEFAULT_LIMIT * 2);
-    /*
-    String activityId = existingActivity.getId();
-    List<ExoSocialActivity> returnComments = new ArrayList<ExoSocialActivity>();
-    // reload activity to make sure to have the most update activity
-    existingActivity = getActivity(activityId);
-    String rawCommentIds = existingActivity.getReplyToId();
-    // rawCommentIds can be: null || ,a,b,c,d
-    if (rawCommentIds != null) {
-      String[] commentIds = rawCommentIds.split(",");
-      commentIds = (String[]) ArrayUtils.removeElement(commentIds, "");
-      for (String commentId : commentIds) {
-        ExoSocialActivity comment = activityStorage.getActivity(commentId);
-        processActivitiy(comment);
-        returnComments.add(comment);
-      }
-    }
-    return returnComments;
-    */
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity recordActivity(Identity owner, String type, String title) throws ActivityStorageException {
-    ExoSocialActivity newActivity = new ExoSocialActivityImpl(owner.getId(), type, title);
-    saveActivity(owner, newActivity);
-    return newActivity;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public int getActivitiesCount(Identity owner) throws ActivityStorageException {
-    return activityStorage.getNumberOfUserActivities(owner);
-  }
-
-
-  /**
-   * {@inheritDoc}
-   */
-  public void processActivitiy(ExoSocialActivity activity) {
-    return;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity recordActivity(Identity owner, ExoSocialActivity activity) throws Exception {
-    saveActivity(owner, activity);
-    return activity;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ExoSocialActivity recordActivity(Identity owner, String type,
-                                          String title, String body) throws ActivityStorageException {
-    String userId = owner.getId();
-    ExoSocialActivity activity = new ExoSocialActivityImpl(userId, type, title, body);
-    saveActivity(owner, activity);
-    return activity;
-  }
-
 
   /**
    * Validates the start and limit for duplicated method.

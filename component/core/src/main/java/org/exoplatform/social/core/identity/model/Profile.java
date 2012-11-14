@@ -20,10 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.model.AvatarAttachment;
-import org.exoplatform.social.core.service.LinkProvider;
 
 /**
  * The Class Profile.
@@ -334,18 +331,6 @@ public class Profile {
   public final void removeProperty(final String name) {
     properties.remove(name);
     setHasChanged(true);
-  }
-
-  /**
-   * Gets the property value.
-   *
-   * @param name the name
-   * @return the property value
-   * @deprecated use {@link #getProperty(String)}. Will be removed at 1.3.x
-   * @return
-   */
-  public final Object getPropertyValue(final String name) {
-    return getProperty(name);
   }
 
   /**

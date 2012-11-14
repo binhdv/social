@@ -18,7 +18,6 @@ package org.exoplatform.social.service.rest;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.rest.impl.EnvironmentContext;
-import org.exoplatform.services.test.mock.MockHttpServletRequest;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
@@ -68,27 +67,11 @@ public class UtilTest extends AbstractServiceTest {
   }
 
   /**
-   * Tests {@link org.exoplatform.social.service.rest.Util#getIdentityManager()}
-   */
-  public void testGetIdentityManager() {
-    IdentityManager identityManager = Util.getIdentityManager();
-    assertNotNull("identityManager must not be null", identityManager);
-  }
-
-  /**
    * Tests {@link Util#getIdentityManager(String)}.
    */
   public void testGetIdentityManagerByPortalContainerName() {
     IdentityManager identityManager = Util.getIdentityManager("portal");
     assertNotNull("identityManager must not be null", identityManager);
-  }
-
-  /**
-   * Tests {@link Util#getSpaceService()}.
-   */
-  public void testGetSpaceService() {
-    SpaceService spaceService = Util.getSpaceService();
-    assertNotNull("spaceService must not be null", spaceService);
   }
 
   /**
@@ -100,27 +83,11 @@ public class UtilTest extends AbstractServiceTest {
   }
 
   /**
-   * Tests {@link Util#getActivityManager()}.
-   */
-  public void testGetActivityManager() {
-    ActivityManager activityManager = Util.getActivityManager();
-    assertNotNull("activityManager must not be null", activityManager);
-  }
-
-  /**
    * Tests {@link Util#getActivityManager(String)}.
    */
   public void testGetActivityManagerByPortalContainerName() {
     ActivityManager activityManager = Util.getActivityManager("portal");
     assertNotNull("activityManager must not be null", activityManager);
-  }
-
-  /**
-   * Tests {@link Util#getRelationshipManager()}.
-   */
-  public void testGetRelationshipManager() {
-    RelationshipManager relationshipManager = Util.getRelationshipManager();
-    assertNotNull("relationshipManager must not be null", relationshipManager);
   }
 
   /**

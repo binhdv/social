@@ -430,7 +430,7 @@ public class BaseUIActivity extends UIForm {
         return true;
       }
 
-      return spaceService.isLeader(space, Utils.getOwnerRemoteId());
+      return spaceService.isManager(space, Utils.getOwnerRemoteId());
     } else if (postContext == PostContext.USER) {
       UIUserActivitiesDisplay uiUserActivitiesDisplay = getAncestorOfType(UIUserActivitiesDisplay.class);
       if (Utils.getViewerIdentity().equals(getOwnerIdentity())) {
@@ -481,7 +481,7 @@ public class BaseUIActivity extends UIForm {
       if (postContext == PostContext.SPACE) {
         Space space = uiActivitiesContainer.getSpace();
         SpaceService spaceService = getApplicationComponent(SpaceService.class);
-        return spaceService.isLeader(space, Utils.getOwnerRemoteId());
+        return spaceService.isManager(space, Utils.getOwnerRemoteId());
       } else if (postContext == PostContext.USER) {
         UIUserActivitiesDisplay uiUserActivitiesDisplay = getAncestorOfType(UIUserActivitiesDisplay.class);
         if (uiUserActivitiesDisplay != null && uiUserActivitiesDisplay.isActivityStreamOwner()) {

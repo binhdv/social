@@ -168,12 +168,12 @@ public class SecurityManagerTest extends AbstractServiceTest {
   /**
    * Tests {@link SecurityManager#canAccessActivity(PortalContainer, Identity, ExoSocialActivity)}.
    */
-  public void testCanAccessActivitySpace() throws SpaceException {
+  public void testCanAccessActivitySpace() throws Exception {
 
     createSpaces(1);
 
     //
-    Space space1 = spaceService.getAllSpaces().get(0);
+    Space space1 = spaceService.getAllSpacesWithListAccess().load(0,1)[0];
     Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space1.getPrettyName(), false);
     createActivities(spaceIdentity, spaceIdentity, 2);
     

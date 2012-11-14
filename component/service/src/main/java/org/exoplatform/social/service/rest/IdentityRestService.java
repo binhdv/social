@@ -72,7 +72,7 @@ public class IdentityRestService implements ResourceContainer {
       }
             
       try {
-        id = _identityManager.getOrCreateIdentity("organization", username).getId();
+        id = _identityManager.getOrCreateIdentity("organization", username, false).getId();
       } catch(Exception ex) {
         throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
       }

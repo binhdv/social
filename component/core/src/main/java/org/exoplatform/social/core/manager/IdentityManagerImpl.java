@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +80,7 @@ public class IdentityManagerImpl implements IdentityManager {
   public IdentityManagerImpl(IdentityStorage identityStorage,
                              IdentityProvider<?> defaultIdentityProvider) {
     this.identityStorage = identityStorage;
-    this.addIdentityProvider(defaultIdentityProvider);
+    this. addIdentityProvider(defaultIdentityProvider);
   }
 
 
@@ -189,100 +188,6 @@ public class IdentityManagerImpl implements IdentityManager {
   /**
    * {@inheritDoc}
    */
-  public List<Identity> getConnections(Identity ownerIdentity) throws Exception {
-    return Arrays.asList(getConnectionsWithListAccess(ownerIdentity).load(OFFSET, LIMIT));
-  }
-
-  
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentities(String providerId) throws Exception {
-    return getIdentities(providerId, true);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentities(String providerId, boolean loadProfile) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, new ProfileFilter(), loadProfile).load(OFFSET, LIMIT));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentitiesByProfileFilter(String providerId, ProfileFilter profileFilter) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false).load(OFFSET, LIMIT));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentitiesByProfileFilter(String providerId,
-                                                     ProfileFilter profileFilter,
-                                                     long offset,
-                                                     long limit) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false).load((int)offset, (int)limit));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentitiesByProfileFilter(ProfileFilter profileFilter) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false).load(OFFSET, LIMIT));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentitiesByProfileFilter(ProfileFilter profileFilter,
-                                                     long offset,
-                                                     long limit) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false).load((int) offset, (int)limit));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentitiesFilterByAlphaBet(String providerId, ProfileFilter profileFilter) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false).load(OFFSET, LIMIT));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentitiesFilterByAlphaBet(String providerId,
-                                                      ProfileFilter profileFilter,
-                                                      long offset,
-                                                      long limit) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(providerId, profileFilter, false).load((int)offset, (int)limit));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<Identity> getIdentitiesFilterByAlphaBet(ProfileFilter profileFilter) throws Exception {
-    return Arrays.asList(getIdentitiesByProfileFilter(null, profileFilter, false).load(OFFSET, LIMIT));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Identity getIdentity(String id) {
-    return getIdentity(id, true);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public long getIdentitiesCount(String providerId) {
-    return identityStorage.getIdentitiesCount(providerId);
-  }
-
-  
-  /**
-   * {@inheritDoc}
-   */
   public Identity getIdentity(String identityId, boolean forceLoadOrReloadProfile) {
     Identity returnIdentity = this.getIdentityStorage().findIdentityById(identityId);
 
@@ -297,19 +202,6 @@ public class IdentityManagerImpl implements IdentityManager {
     return returnIdentity;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public Identity getIdentity(String providerId, String remoteId, boolean loadProfile) {
-    return getOrCreateIdentity(providerId, remoteId, loadProfile);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Identity getOrCreateIdentity(String providerId, String remoteId) {
-    return getOrCreateIdentity(providerId, remoteId, true);
-  }
 
   /**
    * {@inheritDoc}
@@ -353,14 +245,6 @@ public class IdentityManagerImpl implements IdentityManager {
   /**
    * {@inheritDoc}
    */
-  public boolean identityExisted(String providerId, String remoteId) {
-    IdentityProvider<?> identityProvider = getIdentityProvider(providerId);
-    return identityProvider.getIdentityByRemoteId(remoteId) != null ? true : false;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public void registerIdentityProviders(IdentityProviderPlugin plugin) {
     List<IdentityProvider<?>> pluginProviders = plugin.getProviders();
     if (pluginProviders != null) {
@@ -373,52 +257,9 @@ public class IdentityManagerImpl implements IdentityManager {
   /**
    * {@inheritDoc}
    */
-  public void saveIdentity(Identity identity) {
+  private void saveIdentity(Identity identity) {
     this.getIdentityStorage().saveIdentity(identity);
     this.getIdentityProvider(identity.getProviderId()).onSaveIdentity(identity);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void saveProfile(Profile profile) {
-    this.getIdentityStorage().saveProfile(profile);
-    this.getIdentityProvider(profile.getIdentity().getProviderId()).onSaveProfile(profile);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void updateAvatar(Profile p) {
-    updateProfile(p);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void updateBasicInfo(Profile p) throws Exception {
-    updateProfile(p);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void updateContactSection(Profile p) throws Exception {
-    updateProfile(p);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void updateExperienceSection(Profile p) throws Exception {
-    updateProfile(p);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void updateHeaderSection(Profile p) throws Exception {
-    updateProfile(p);
   }
 
   /**
@@ -440,7 +281,7 @@ public class IdentityManagerImpl implements IdentityManager {
    *
    * @return identityStorage
    */
-  public IdentityStorage getIdentityStorage() {
+  private IdentityStorage getIdentityStorage() {
     return this.identityStorage;
   }
 
@@ -464,42 +305,6 @@ public class IdentityManagerImpl implements IdentityManager {
                                                                  .getComponentInstanceOfType(RelationshipManager.class);
     }
     return relationshipManager;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void addProfileListener(ProfileListenerPlugin plugin) {
-    registerProfileListener(plugin);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void registerProfileListener(ProfileListener listener) {
-    profileLifeCycle.addListener(listener);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void unregisterProfileListener(ProfileListener listener) {
-    profileLifeCycle.removeListener(listener);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void addOrModifyProfileProperties(Profile profile) throws Exception {
-    this.getIdentityStorage().addOrModifyProfileProperties(profile);
-    this.getIdentityProvider(profile.getIdentity().getProviderId()).onSaveProfile(profile);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public IdentityStorage getStorage() {
-    return this.identityStorage;
   }
 
   /**

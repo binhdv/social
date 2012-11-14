@@ -23,7 +23,6 @@ import java.util.List;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -310,24 +309,8 @@ public class SecurityManager {
     }
     return false;
   }
-  /**
-   * <p>Gets the current logged in Identity, if not logged in return null</p>
-   * @return logged in Identity or null
-   * @since 1.2.2
-   * @deprecated use {@link Util#getAuthenticatedUserIdentity(String)} instead.
-   */
-  public static Identity getAuthenticatedUserIdentity() {
-    if(ConversationState.getCurrent()!=null && ConversationState.getCurrent().getIdentity() != null &&
-              ConversationState.getCurrent().getIdentity().getUserId() != null){
-      IdentityManager identityManager =  Util.getIdentityManager();
-      String authenticatedUserRemoteId = ConversationState.getCurrent().getIdentity().getUserId(); 
-      return identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUserRemoteId, false);
-    } else {
-      return null;
-    }
-  }
 
-   /**
+  /**
    * Checks if an authenticated identity could access the activity stream of an owner stream identity.
    * If the owner stream is a user identity, return true.
    * If the owner stream is a space identity, return true only if the authenticated identity is the space member.

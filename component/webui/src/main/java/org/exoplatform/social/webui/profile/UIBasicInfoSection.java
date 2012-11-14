@@ -66,7 +66,7 @@ public class UIBasicInfoSection extends UIProfileSection {
     addChild(UITitleBar.class, null, null);
 
     UIFormStringInput userName = new UIFormStringInput(Profile.USERNAME, Profile.USERNAME, null);
-    userName.setEditable(false);
+    userName.setReadOnly(true);
     addUIFormInput(userName.addValidator(MandatoryValidator.class).addValidator(StringLengthValidator.class, 3, 30)
                    .addValidator(ResourceValidator.class).addValidator(ExpressionValidator.class,
                    USER_NAME_VALIDATOR_REGEX, "ResourceValidator.msg.Invalid-char"));

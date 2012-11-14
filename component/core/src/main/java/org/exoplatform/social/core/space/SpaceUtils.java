@@ -148,41 +148,6 @@ public class SpaceUtils {
   private static String SPACE_STR = " ";
   
   /**
-   * Creates a new group from an existing group. This new group will get all data from existing group except for group
-   * name
-   *
-   * @param parentGroup
-   * @param existingGroup
-   * @param name
-   * @return new Group
-   * @throws Exception
-   * @deprecated to be removed by 1.2.x
-   */
-  @SuppressWarnings("unchecked")
-  public static Group createGroupFromExistingGroup(Group parentGroup,
-                                                   Group existingGroup,
-                                                   String name) throws Exception {
-    OrganizationService orgSrc = getOrganizationService();
-    GroupHandler groupHandler = orgSrc.getGroupHandler();
-    MembershipHandler memberShipHandler = orgSrc.getMembershipHandler();
-    Group newGroup = groupHandler.createGroupInstance();
-    newGroup.setGroupName(name);
-    newGroup.setLabel(name);
-    newGroup.setDescription(existingGroup.getDescription());
-    groupHandler.addChild(parentGroup, newGroup, true);
-    Collection<Membership> memberShips = memberShipHandler.findMembershipsByGroup(existingGroup);
-    Iterator<Membership> itr = memberShips.iterator();
-    while (itr.hasNext()) {
-      Membership membership = itr.next();
-      User user = orgSrc.getUserHandler().findUserByName(membership.getUserName());
-      MembershipType memberShipType = orgSrc.getMembershipTypeHandler()
-              .findMembershipType(membership.getMembershipType());
-      memberShipHandler.linkMembership(user, newGroup, memberShipType, true);
-    }
-    return newGroup;
-  }
-
-  /**
    * Gets applications that a group has right to access
    *
    * @param groupId
@@ -648,7 +613,7 @@ public class SpaceUtils {
     UIWorkingWorkspace uiWorkingWS = uiPortalApplication.getChildById(UIPortalApplication.UI_WORKING_WS_ID);
     PortalRequestContext pContext = Util.getPortalRequestContext();
     pContext.addUIComponentToUpdateByAjax(uiWorkingWS);
-    pContext.setFullRender(true);
+    pContext.ignoreAJAXUpdateOnPortlets(true);
   }
 
   /**

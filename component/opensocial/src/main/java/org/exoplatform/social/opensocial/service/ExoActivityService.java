@@ -229,7 +229,7 @@ public class ExoActivityService extends ExoService implements ActivityService {
 
         // making sure it resolves to a valid identity
       } else {
-        Identity activityUserIdentity = identityManager.getIdentity(activityUser);
+        Identity activityUserIdentity = identityManager.getIdentity(activityUser,true);
         if (activityUserIdentity == null) {
           throw new ProtocolException(HttpServletResponse.SC_FORBIDDEN, activityUser + " is an unknown identity");
         }
