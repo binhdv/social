@@ -1747,10 +1747,10 @@ public class ActivityStorageTest extends AbstractCoreTest {
     space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/space/space" + number);
     space.setUrl(space.getPrettyName());
-    String[] managers = new String[] {"demo", "tom"};
-    String[] members = new String[] {"raul", "ghost", "dragon"};
-    String[] invitedUsers = new String[] {"register1", "mary"};
-    String[] pendingUsers = new String[] {"jame", "paul", "hacker"};
+    String[] managers = new String[] {"demo"};
+    String[] members = new String[] {"demo"};
+    String[] invitedUsers = new String[] {"mary"};
+    String[] pendingUsers = new String[] {"john"};
     space.setInvitedUsers(invitedUsers);
     space.setPendingUsers(pendingUsers);
     space.setManagers(managers);

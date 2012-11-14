@@ -20,24 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.chromattic.api.ChromatticSession;
-import org.exoplatform.commons.chromattic.ChromatticManager;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.ComponentRequestLifecycle;
-import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.idm.UserImpl;
-import org.exoplatform.social.common.RealtimeListAccess;
-import org.exoplatform.social.common.lifecycle.SocialChromatticLifeCycle;
-import org.exoplatform.social.core.activity.model.ExoSocialActivity;
-import org.exoplatform.social.core.chromattic.entity.IdentityEntity;
-import org.exoplatform.social.core.chromattic.entity.ProfileEntity;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess.Type;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -83,26 +73,9 @@ public class IdentityManagerTest extends AbstractCoreTest {
     tearDownIdentityList = new ArrayList<Identity>();
   }
 
-  private void removeProfile(Identity identity){
-    PortalContainer container = PortalContainer.getInstance();
-    ChromatticManager manager = (ChromatticManager) container.getComponentInstanceOfType(ChromatticManager.class);
-    SocialChromatticLifeCycle  socialChromatticLifeCycle =  (SocialChromatticLifeCycle) manager.getLifeCycle(SocialChromatticLifeCycle.SOCIAL_LIFECYCLE_NAME);
-    ChromatticSession chromatticSession = socialChromatticLifeCycle.getSession();
-
-    IdentityEntity identityEntity = chromatticSession.findById(IdentityEntity.class, identity.getId());
-    ProfileEntity profileEntity = chromatticSession.findById(ProfileEntity.class, identityEntity.getProfile().getId());
-    chromatticSession.remove(profileEntity);
-
-    chromatticSession.save();
-  }
-
   public void tearDown() throws Exception {
     for (Identity identity : tearDownIdentityList) {
-      if(identity != null){
-        removeProfile(identity);
-      }
       identityManager.deleteIdentity(identity);
-
     }
     super.tearDown();
   }
@@ -471,7 +444,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
     populateData();
     
     ProfileFilter pf = new ProfileFilter();
-    ListAccess idsListAccess = null;
+    ListAccess<Identity> idsListAccess = null;
     { // Test cases with name of profile.
       // Filter identity by first character.
       pf.setFirstCharacterOfName('F');
@@ -624,11 +597,6 @@ public class IdentityManagerTest extends AbstractCoreTest {
     Identity identityUpdated = identityManager.getOrCreateIdentity(rootIdentity.getProviderId(), rootIdentity.getRemoteId(), false);
     assertEquals("CEO", identityUpdated.getProfile().getProperty(Profile.POSITION));
 
-    end();
-    begin();
-
-    RealtimeListAccess<ExoSocialActivity> rootActivityList = activityManager.getActivityFeedWithListAccess(rootIdentity);
-
     tearDownIdentityList.add(rootIdentity);
   }
   
@@ -671,7 +639,6 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
   private void createUser(String userName) throws Exception {
     OrganizationService organizationService = (OrganizationService) ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(OrganizationService.class);
-    RequestLifeCycle.begin((ComponentRequestLifecycle) organizationService);
     UserHandler userHandler = organizationService.getUserHandler();
 
     User user = new UserImpl(userName);
@@ -851,18 +818,8 @@ public class IdentityManagerTest extends AbstractCoreTest {
       assert false : "can't update avatar" + e1 ;
     }
 
-    Identity gotJohnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME,
-                                                                   "john", true);
     tearDownIdentityList.add(johnIdentity);
     tearDownIdentityList.add(rootIdentity);
-    // an activity for avatar created, clean it up here
-
-    ActivityManager activityManager = (ActivityManager) getContainer().getComponentInstanceOfType(ActivityManager.class);
-
-    end();
-    begin();
-
-    RealtimeListAccess<ExoSocialActivity> johnActivityList = activityManager.getActivitiesWithListAccess(gotJohnIdentity);
-    assertEquals("johnActivityList.size() must be 1", 1, johnActivityList.getSize());
+    
   }
 }
