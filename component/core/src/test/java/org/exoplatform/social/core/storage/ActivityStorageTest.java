@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.social.common.ActivityFilter;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -1758,4 +1759,298 @@ public class ActivityStorageTest extends AbstractCoreTest {
     spaceService.saveSpace(space, true);
     return space;
   }
+  
+  /**
+   * Tests {@link ActivityStorage#getNewerOnActivityFeed(Identity, ActivityFilter, int)}.
+   */
+  @MaxQueryNumber(500)
+  public void testGetNewerOnActivityFeedWithActivityFilter() {
+    createActivities(3, demoIdentity);
+    Long sinceTime = activityStorage.getActivityFeed(demoIdentity, 0, 10).get(0).getPostedTime();
+    ActivityFilter af = new ActivityFilter();
+    af.setPostedTime(sinceTime);
+    assertEquals(0, activityStorage.getNewerOnActivityFeed(demoIdentity, af, 10).size());
+    createActivities(1, demoIdentity);
+    assertEquals(1, activityStorage.getNewerOnActivityFeed(demoIdentity, af, 10).size());
+    createActivities(2, maryIdentity);
+    relationshipManager.inviteToConnect(demoIdentity, maryIdentity);
+    assertEquals(1, activityStorage.getNewerOnActivityFeed(demoIdentity, af, 10).size());
+    relationshipManager.confirm(demoIdentity, maryIdentity);
+    createActivities(2, maryIdentity);
+    assertEquals(5, activityStorage.getNewerOnActivityFeed(demoIdentity, af, 10).size());
+
+    // Delete the activity at this sinceTime will don't change the result
+    String id = activityStorage.getUserActivities(demoIdentity, 0, 10).get(1).getId();
+    for (ExoSocialActivity activity : tearDownActivityList) {
+      if (id == activity.getId()) {
+        tearDownActivityList.remove(activity);
+        break;
+      }
+    }
+    activityStorage.deleteActivity(id);
+    assertEquals(5, activityStorage.getNewerOnActivityFeed(demoIdentity, af, 10).size());
+  }
+  
+  /**
+   * Tests {@link ActivityStorage#getOlderOnActivityFeed(Identity, ActivityFilter, int)}.
+   */
+  @MaxQueryNumber(200)
+  public void testGetOlderOnActivityFeedWithActivityFilter() {
+    createActivities(3, demoIdentity);
+    Long maxTime = activityStorage.getActivityFeed(demoIdentity, 0, 10).get(2).getPostedTime();
+    ActivityFilter af = new ActivityFilter();
+    af.setPostedTime(maxTime);
+    assertEquals(0, activityStorage.getOlderOnActivityFeed(demoIdentity, af, 10).size());
+
+    // Delete the activity at this maxTime will don't change the result
+    String id = activityStorage.getUserActivities(demoIdentity, 0, 10).get(2).getId();
+    for (ExoSocialActivity activity : tearDownActivityList) {
+      if (id == activity.getId()) {
+        tearDownActivityList.remove(activity);
+        break;
+      }
+    }
+    activityStorage.deleteActivity(id);
+    assertEquals(0, activityStorage.getOlderOnActivityFeed(demoIdentity, af, 10).size());
+  }
+  
+  /**
+   * Test {@link ActivityStorage#getNewerComments(ExoSocialActivity, ActivityFilter, int)}
+   * 
+   * @since 4.0.0
+   */
+  @MaxQueryNumber(150)
+  public void testGetNewerCommentsWithActivityFilter() {
+    int totalNumber = 10;
+    String activityTitle = "activity title";
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(rootIdentity.getId());
+    activityStorage.saveActivity(rootIdentity, activity);
+    tearDownActivityList.add(activity);
+
+    for (int i = 0; i < totalNumber; i++) {
+      // John comments on Root's activity
+      ExoSocialActivity comment = new ExoSocialActivityImpl();
+      comment.setTitle("john comment " + i);
+      comment.setUserId(johnIdentity.getId());
+      activityStorage.saveComment(activity, comment);
+    }
+
+    for (int i = 0; i < totalNumber; i++) {
+      // Demo comments on Root's activity
+      ExoSocialActivity comment = new ExoSocialActivityImpl();
+      comment.setTitle("demo comment " + i);
+      comment.setUserId(demoIdentity.getId());
+      activityStorage.saveComment(activity, comment);
+    }
+
+    List<ExoSocialActivity> comments = activityStorage.getComments(activity, 0, 10);
+    assertNotNull("comments must not be null", comments);
+    assertEquals("comments.size() must return: 10", 10, comments.size());
+
+    Long sinceTime = comments.get(0).getPostedTime();
+    ActivityFilter af = new ActivityFilter();
+    af.setPostedTime(sinceTime);
+    List<ExoSocialActivity> newerComments = activityStorage.getNewerComments(activity,af,10);
+    assertNotNull("newerComments must not be null", newerComments);
+    assertEquals("newerComments.size() must return: 10", 10, newerComments.size());
+
+    af.setPostedTime(activityStorage.getComments(activity, 0, 20).get(10).getPostedTime());
+    newerComments = activityStorage.getNewerComments(activity, af, 20);
+    assertNotNull("newerComments must not be null", newerComments);
+    assertEquals("newerComments.size() must return: 9", 9, newerComments.size());
+
+    af.setPostedTime(activityStorage.getComments(activity, 0, 20).get(19).getPostedTime());
+    newerComments = activityStorage.getNewerComments(activity, af, 20);
+    assertNotNull("newerComments must not be null", newerComments);
+    assertEquals("newerComments.size() must return: 0", 0, newerComments.size());
+  }
+
+  /**
+   * Test {@link ActivityStorage#getOlderComments(ExoSocialActivity, ActivityFilter, int)}
+   * 
+   * @since 1.2.12
+   */
+  @MaxQueryNumber(100)
+  public void testGetOlderCommentsWithActivityFilter() {
+    int totalNumber = 10;
+    String activityTitle = "activity title";
+
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(rootIdentity.getId());
+    activityStorage.saveActivity(rootIdentity, activity);
+    tearDownActivityList.add(activity);
+
+    for (int i = 0; i < totalNumber; i++) {
+      // John comments on Root's activity
+      ExoSocialActivity comment = new ExoSocialActivityImpl();
+      comment.setTitle("john comment " + i);
+      comment.setUserId(johnIdentity.getId());
+      activityStorage.saveComment(activity, comment);
+    }
+
+    List<ExoSocialActivity> comments = activityStorage.getComments(activity, 0, 10);
+    assertNotNull("comments must not be null", comments);
+    assertEquals("comments.size() must return: 10", 10, comments.size());
+
+    Long maxTime = comments.get(0).getPostedTime();
+    ActivityFilter af = new ActivityFilter();
+    af.setPostedTime(maxTime);
+    List<ExoSocialActivity> olderComments = activityStorage.getOlderComments(activity, af, 10);
+    assertNotNull("olderComments must not be null", olderComments);
+    assertEquals("olderComments.size() must return: 0", 0, olderComments.size());
+
+    af.setPostedTime(comments.get(9).getPostedTime());
+
+    olderComments = activityStorage.getOlderComments(activity, af, 10);
+    assertNotNull("olderComments must not be null", olderComments);
+    assertEquals("olderComments.size() must return: 9", 9, olderComments.size());
+
+    af.setPostedTime(comments.get(5).getPostedTime());
+
+    olderComments = activityStorage.getOlderComments(activity, af, 10);
+    assertNotNull("olderComments must not be null", olderComments);
+    assertEquals("olderComments.size() must return: 5", 5, olderComments.size());
+  }
+  
+  /**
+   * Tests {@link ActivityStorage#getNumberOfActivitesOnActivityFeed(Identity, ActivityFilter)}.
+   */
+  @MaxQueryNumber(500)
+  public void testGetNumberOfNewerOnActivityFeedWithActivityFilter() {
+    createActivities(3, demoIdentity);
+    createActivities(2, maryIdentity);
+    Relationship maryDemoConnection = relationshipManager.inviteToConnect(maryIdentity, demoIdentity);
+    relationshipManager.confirm(maryIdentity, demoIdentity);
+    List<ExoSocialActivity> demoActivityFeed = activityStorage.getActivityFeed(demoIdentity, 0, 10);
+    ActivityFilter af = new ActivityFilter();
+    af.setPostedTime(demoActivityFeed.get(0).getPostedTime());
+    int newDemoActivityFeed = activityStorage.getNumberOfNewerOnActivityFeed(demoIdentity, af);
+    assertEquals("newDemoActivityFeed must be 0", 0, newDemoActivityFeed);
+    createActivities(1, johnIdentity);
+    int newDemoActivityFeed2 = activityStorage.getNumberOfNewerOnActivityFeed(demoIdentity, af);
+    assertEquals("newDemoActivityFeed2 must be 0", 0, newDemoActivityFeed2);
+    createActivities(1, demoIdentity);
+    int newDemoActivityFeed3 = activityStorage.getNumberOfNewerOnActivityFeed(demoIdentity, af);
+    assertEquals("newDemoActivityFeed3 must be 1", 1, newDemoActivityFeed3);
+    createActivities(2, maryIdentity);
+    int newDemoActivityFeed4 = activityStorage.getNumberOfNewerOnActivityFeed(demoIdentity, af);
+    assertEquals("newDemoActivityFeed must be 3", 3, newDemoActivityFeed4);
+  }
+  
+  /**
+   * Tests {@link ActivityStorage#getNumberOfOlderOnActivityFeed(Identity, ExoSocialActivity)}.
+   */
+  @MaxQueryNumber(350)
+  public void testGetNumberOfOlderOnActivityFeedWithActivityFilter() {
+    createActivities(3, demoIdentity);
+    createActivities(2, maryIdentity);
+    Relationship maryDemoConnection = relationshipManager.inviteToConnect(maryIdentity, demoIdentity);
+    relationshipManager.confirm(maryIdentity, demoIdentity);
+    List<ExoSocialActivity> demoActivityFeed = activityStorage.getActivityFeed(demoIdentity, 0, 10);
+    ActivityFilter af = new ActivityFilter();
+    af.setPostedTime(demoActivityFeed.get(4).getPostedTime());
+    int oldDemoActivityFeed = activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, af);
+    assertEquals("oldDemoActivityFeed must be 0", 0, oldDemoActivityFeed);
+    createActivities(1, johnIdentity);
+    int oldDemoActivityFeed2 = activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, af);
+    assertEquals("oldDemoActivityFeed2 must be 0", 0, oldDemoActivityFeed2);
+    af.setPostedTime(demoActivityFeed.get(3).getPostedTime());
+    int oldDemoActivityFeed3 = activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, af);
+    assertEquals("oldDemoActivityFeed3 must be 1", 1, oldDemoActivityFeed3);
+  }
+  
+  /**
+   * Test {@link ActivityStorage#getNumberOfNewerComments(ExoSocialActivity, ExoSocialActivity)}
+   * 
+   * @since 4.0-Alpha01
+   */
+  @MaxQueryNumber(150)
+  public void testGetNumberOfNewerCommentsWithActivityFilter() {
+    int totalNumber = 10;
+    String activityTitle = "activity title";
+    
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(rootIdentity.getId());
+    activityStorage.saveActivity(rootIdentity, activity);
+    tearDownActivityList.add(activity);
+    
+    for (int i = 0; i < totalNumber; i ++) {
+      //John comments on Root's activity
+      ExoSocialActivity comment = new ExoSocialActivityImpl();
+      comment.setTitle("john comment " + i);
+      comment.setUserId(johnIdentity.getId());
+      activityStorage.saveComment(activity, comment);
+    }
+    
+    List<ExoSocialActivity> comments = activityStorage.getComments(activity, 0, 10);
+    assertNotNull("comments must not be null", comments);
+    assertEquals("comments.size() must return: 10", 10, comments.size());
+
+    ExoSocialActivity baseComment = comments.get(0);
+    ActivityFilter af = new ActivityFilter();
+    af.setPostedTime(baseComment.getPostedTime());
+    int number = activityStorage.getNumberOfNewerComments(activity, af);
+    assertEquals("number must be: 9", 9, number);
+    
+    baseComment = activityStorage.getComments(activity, 0, 10).get(9);
+    af.setPostedTime(baseComment.getPostedTime());
+    number = activityStorage.getNumberOfNewerComments(activity, af);
+    assertEquals("number must be: 0", 0, number);
+    
+    baseComment = activityStorage.getComments(activity, 0, 10).get(5);
+    af.setPostedTime(baseComment.getPostedTime());
+    number = activityStorage.getNumberOfNewerComments(activity, af);
+    assertEquals("number must be: 4", 4, number);
+  }
+  
+  /**
+   * Test {@link ActivityStorage#getNumberOfOlderComments(ExoSocialActivity, ExoSocialActivity)}
+   * 
+   * @since 4.0-Alpha01
+   */
+  @MaxQueryNumber(100)
+  public void testGetNumberOfOlderCommentsWithActivityFilter() {
+    int totalNumber = 10;
+    String activityTitle = "activity title";
+    
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(rootIdentity.getId());
+    activityStorage.saveActivity(rootIdentity, activity);
+    tearDownActivityList.add(activity);
+    
+    for (int i = 0; i < totalNumber; i ++) {
+      //John comments on Root's activity
+      ExoSocialActivity comment = new ExoSocialActivityImpl();
+      comment.setTitle("john comment " + i);
+      comment.setUserId(johnIdentity.getId());
+      activityStorage.saveComment(activity, comment);
+    }
+    
+    List<ExoSocialActivity> comments = activityStorage.getComments(activity, 0, 10);
+    assertNotNull("comments must not be null", comments);
+    assertEquals("comments.size() must return: 10", 10, comments.size());
+    
+    ExoSocialActivity baseComment = comments.get(0);
+    ActivityFilter af = new ActivityFilter();
+    af.setPostedTime(baseComment.getPostedTime());
+    int number = activityStorage.getNumberOfOlderComments(activity, af);
+    assertEquals("number must be: 0", 0, number);
+    
+    baseComment = comments.get(9);
+    af.setPostedTime(baseComment.getPostedTime());
+    number = activityStorage.getNumberOfOlderComments(activity, af);
+    assertEquals("number must be: 9", 9, number);
+    
+    baseComment = comments.get(5);
+    af.setPostedTime(baseComment.getPostedTime());
+    number = activityStorage.getNumberOfOlderComments(activity, af);
+    assertEquals("number must be: 5", 5, number);
+  }
+
 }

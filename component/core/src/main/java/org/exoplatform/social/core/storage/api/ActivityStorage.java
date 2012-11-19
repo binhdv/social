@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.storage.api;
 
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.common.ActivityFilter;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -471,4 +472,30 @@ public interface ActivityStorage {
    * @throws ActivityStorageException
    */
   public void updateActivity(ExoSocialActivity existingActivity) throws ActivityStorageException;
+
+  public List<ExoSocialActivity> getNewerOnActivityFeed(Identity ownerIdentity,
+                                                        ActivityFilter activityFilter,
+                                                        int limit);
+
+  public int getNumberOfNewerOnActivityFeed(Identity ownerIdentity, ActivityFilter activityFilter);
+  
+  public List<ExoSocialActivity> getOlderOnActivityFeed(Identity ownerIdentity,
+                                                        ActivityFilter activityFilter,
+                                                        int limit);
+
+  public int getNumberOfOlderOnActivityFeed(Identity ownerIdentity, ActivityFilter activityFilter);
+
+  public List<ExoSocialActivity> getNewerComments(ExoSocialActivity existingActivity,
+                                                  ActivityFilter activityFilter,
+                                                  int limit);
+
+  public int getNumberOfNewerComments(ExoSocialActivity existingActivity,
+                                      ActivityFilter activityFilter);
+
+  public List<ExoSocialActivity> getOlderComments(ExoSocialActivity existingActivity,
+                                                  ActivityFilter activityFilter,
+                                                  int limit);
+
+  public int getNumberOfOlderComments(ExoSocialActivity existingActivity,
+                                      ActivityFilter activityFilter);
 }

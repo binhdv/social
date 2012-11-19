@@ -26,6 +26,7 @@ import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivitiesRealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivitiesRealtimeListAccess.ActivityType;
+import org.exoplatform.social.common.ActivityFilter;
 import org.exoplatform.social.core.activity.CommentsRealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -269,6 +270,10 @@ public class ActivityManagerImpl implements ActivityManager {
   private Identity getStreamOwner(ExoSocialActivity newActivity) {
     Validate.notNull(newActivity.getUserId(), "activity.getUserId() must not be null!");
     return identityManager.getIdentity(newActivity.getUserId(), false);
+  }
+
+  public RealtimeListAccess<ExoSocialActivity> getFeed(Identity existingIdentity, ActivityFilter activityFilter) {
+    return new ActivitiesRealtimeListAccess(activityStorage, ActivityType.ACTIVITY_FEED,existingIdentity, activityFilter);
   }
 
 }

@@ -18,6 +18,7 @@ package org.exoplatform.social.core.activity;
 
 import java.util.List;
 
+import org.exoplatform.social.common.ActivityFilter;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.common.jcr.Util;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -100,5 +101,21 @@ public class CommentsRealtimeListAccess implements RealtimeListAccess<ExoSocialA
    */
   public int getNumberOfOlder(ExoSocialActivity baseComment) {
     return activityStorage.getNumberOfOlderComments(existingActivity, baseComment);
+  }
+
+  public List<ExoSocialActivity> loadNewer(ActivityFilter activityFilter, int limit) {
+    return activityStorage.getNewerComments(existingActivity, activityFilter, limit);
+  }
+
+  public int getNumberOfNewer(ActivityFilter activityFilter) {
+    return activityStorage.getNumberOfNewerComments(existingActivity, activityFilter);
+  }
+
+  public List<ExoSocialActivity> loadOlder(ActivityFilter activityFilter, int limit) {
+    return activityStorage.getOlderComments(existingActivity, activityFilter, limit);
+  }
+
+  public int getNumberOfOlder(ActivityFilter activityFilter) {
+    return activityStorage.getNumberOfOlderComments(existingActivity, activityFilter);
   }
 }

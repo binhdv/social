@@ -17,6 +17,8 @@
 
 package org.exoplatform.social.core.storage.cache.model.key;
 
+import org.exoplatform.social.common.ActivityFilter;
+
 /**
  * Immutable activity count key.
  * This key is used to cache the activity count.
@@ -31,6 +33,10 @@ public class ActivityCountKey extends ScopeCacheKey {
   private String baseId;
 
   private ActivityType type;
+  
+  private ActivityFilter activityFilter;
+  
+  private Long time;
 
   public ActivityCountKey(final IdentityKey key, final ActivityType type) {
     this.key = key;
@@ -42,7 +48,13 @@ public class ActivityCountKey extends ScopeCacheKey {
     this.baseId = baseId;
     this.type = type;
   }
-
+  
+  public ActivityCountKey(final IdentityKey key, final ActivityFilter activityFilter, final ActivityType type) {
+    this.key = key;
+    this.time = activityFilter.getPostedTime();
+    this.type = type;
+  }
+  
   public IdentityKey getKey() {
     return key;
   }
@@ -70,6 +82,9 @@ public class ActivityCountKey extends ScopeCacheKey {
     if (type != that.type) {
       return false;
     }
+    if (time != that.time) {
+      return false;
+    }
 
     return true;
   }
@@ -80,6 +95,7 @@ public class ActivityCountKey extends ScopeCacheKey {
     result = 31 * result + (key != null ? key.hashCode() : 0);
     result = 31 * result + (baseId != null ? baseId.hashCode() : 0);
     result = 31 * result + (type != null ? type.hashCode() : 0);
+    result = 31 * result + (time != null ? time.hashCode() : 0);
     return result;
   }
 

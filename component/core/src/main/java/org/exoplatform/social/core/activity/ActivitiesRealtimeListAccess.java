@@ -19,6 +19,7 @@ package org.exoplatform.social.core.activity;
 import java.util.Collections;
 import java.util.List;
 
+import org.exoplatform.social.common.ActivityFilter;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.common.jcr.Util;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -55,6 +56,8 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
    * The chosen identity.
    */
   private Identity ownerIdentity;
+  
+  private ActivityFilter activityFilter;
 
 
   /**
@@ -70,6 +73,17 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
     this.activityStorage = existingActivityStorage;
     this.activityType = chosenActivityType;
     this.ownerIdentity = chosenOwnerIdentity;
+  }
+
+
+  public ActivitiesRealtimeListAccess(final ActivityStorage existingActivityStorage,
+                                      final ActivityType chosenActivityType,
+                                      final Identity chosenOwnerIdentity,
+                                      final ActivityFilter activityFilter) {
+    this.activityStorage = existingActivityStorage;
+    this.activityType = chosenActivityType;
+    this.ownerIdentity = chosenOwnerIdentity;
+    this.activityFilter = activityFilter;
   }
 
 
@@ -201,6 +215,102 @@ public class ActivitiesRealtimeListAccess implements RealtimeListAccess<ExoSocia
       }
       case USER_SPACE_ACTIVITIES: {
         return activityStorage.getNumberOfOlderOnUserSpacesActivities(ownerIdentity, baseActivity);
+      }
+    }
+    return 0;
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public List<ExoSocialActivity> loadNewer(ActivityFilter activityFilter, int limit) {
+    switch (activityType) {
+      case ACTIVITY_FEED: {
+        return activityStorage.getNewerOnActivityFeed(ownerIdentity, activityFilter, limit);
+      }
+      case USER_ACTIVITIES: {
+        //return activityStorage.getNewerOnUserActivities(ownerIdentity, activityFilter, length);
+        return null;
+      }
+      case CONNECTIONS_ACTIVITIES: {
+        //return activityStorage.getNewerOnActivitiesOfConnections(ownerIdentity, activityFilter, length);
+        return null;
+      }
+      case USER_SPACE_ACTIVITIES: {
+        //return activityStorage.getNewerOnUserSpacesActivities(ownerIdentity, activityFilter, length);
+        return null;
+      }
+    }
+    return Collections.emptyList();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int getNumberOfNewer(ActivityFilter activityFilter) {
+     switch (activityType) {
+      case ACTIVITY_FEED: {
+        return activityStorage.getNumberOfNewerOnActivityFeed(ownerIdentity, activityFilter);
+      }
+      case USER_ACTIVITIES: {
+        //return activityStorage.getNumberOfNewerOnUserActivities(ownerIdentity, activityFilter);
+        return 0;
+      }
+      case CONNECTIONS_ACTIVITIES: {
+        //return activityStorage.getNumberOfNewerOnActivitiesOfConnections(ownerIdentity, activityFilter);
+        return 0;
+      }
+      case USER_SPACE_ACTIVITIES: {
+        //return activityStorage.getNumberOfNewerOnUserSpacesActivities(ownerIdentity, activityFilter);
+        return 0;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<ExoSocialActivity> loadOlder(ActivityFilter activityFilter, int limit) {
+    switch (activityType) {
+      case ACTIVITY_FEED: {
+        return activityStorage.getOlderOnActivityFeed(ownerIdentity, activityFilter, limit);
+      }
+      case USER_ACTIVITIES: {
+        //return activityStorage.getOlderOnUserActivities(ownerIdentity, activityFilter, length);
+        return null;
+      }
+      case CONNECTIONS_ACTIVITIES: {
+        //return activityStorage.getOlderOnActivitiesOfConnections(ownerIdentity, activityFilter, length);
+        return null;
+      }
+      case USER_SPACE_ACTIVITIES: {
+        //return activityStorage.getOlderOnUserSpacesActivities(ownerIdentity, activityFilter, length);
+        return null;
+      }
+    }
+    return Collections.emptyList();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int getNumberOfOlder(ActivityFilter activityFilter) {
+     switch (activityType) {
+      case ACTIVITY_FEED: {
+        return activityStorage.getNumberOfOlderOnActivityFeed(ownerIdentity, activityFilter);
+      }
+      case USER_ACTIVITIES: {
+        //return activityStorage.getNumberOfOlderOnUserActivities(ownerIdentity, activityFilter);
+        return 0;
+      }
+      case CONNECTIONS_ACTIVITIES: {
+        //return activityStorage.getNumberOfOlderOnActivitiesOfConnections(ownerIdentity, activityFilter);
+        return 0;
+      }
+      case USER_SPACE_ACTIVITIES: {
+        //return activityStorage.getNumberOfOlderOnUserSpacesActivities(ownerIdentity, activityFilter);
+        return 0;
       }
     }
     return 0;
