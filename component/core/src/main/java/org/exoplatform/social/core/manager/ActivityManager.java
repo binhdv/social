@@ -21,6 +21,7 @@ import java.util.List;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
+import org.exoplatform.social.common.ActivityFilter;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -275,6 +276,15 @@ public interface ActivityManager {
    * @param newActivityProcessorPlugin the new activity processor plugin
    */
   void addProcessorPlugin(BaseActivityProcessorPlugin newActivityProcessorPlugin);
+  
+  /**
+   * Gets all the activities accessible by an existing identity via {@link RealtimeListAccess}
+   *
+   * @param existingIdentity the existing identity
+   * @return the real time list access for activities
+   * @since 1.2.0-GA
+   */
+  RealtimeListAccess<ExoSocialActivity> getFeed(Identity existingIdentity, ActivityFilter activityFilter);
 
 
   /**

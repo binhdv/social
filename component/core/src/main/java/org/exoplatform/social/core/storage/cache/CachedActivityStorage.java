@@ -21,6 +21,7 @@ import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.common.ActivityFilter;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.storage.ActivityStorageException;
@@ -915,6 +916,145 @@ public class CachedActivityStorage implements ActivityStorage {
     ActivityKey key = new ActivityKey(existingActivity.getId());
     exoActivityCache.remove(key);
     exoActivityCache.put(key, new ActivityData(getActivity(existingActivity.getId())));
+  }
+
+  public List<ExoSocialActivity> getNewerOnActivityFeed(final Identity ownerIdentity,
+                                                        final ActivityFilter activityFilter,
+                                                        final int limit) {
+    //
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(ownerIdentity), activityFilter, ActivityType.NEWER_FEED);
+    ListActivitiesKey listKey = new ListActivitiesKey(key, 0, limit);
+
+    //
+    ListActivitiesData keys = activitiesCache.get(
+        new ServiceContext<ListActivitiesData>() {
+          public ListActivitiesData execute() {
+            List<ExoSocialActivity> got = storage.getNewerOnActivityFeed(ownerIdentity, activityFilter, limit);
+            return buildIds(got);
+          }
+        },
+        listKey);
+
+    //
+    return buildActivities(keys);
+  }
+
+  public int getNumberOfNewerOnActivityFeed(final Identity ownerIdentity, final ActivityFilter activityFilter) {
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(ownerIdentity),
+                                                activityFilter,
+                                                ActivityType.NEWER_FEED);
+
+    return activitiesCountCache.get(new ServiceContext<IntegerData>() {
+      public IntegerData execute() {
+        return new IntegerData(storage.getNumberOfNewerOnActivityFeed(ownerIdentity, activityFilter));
+      }
+    }, key).build();
+  }
+
+  public List<ExoSocialActivity> getOlderOnActivityFeed(final Identity ownerIdentity,
+                                                        final ActivityFilter activityFilter,
+                                                        final int limit) {
+    //
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(ownerIdentity), activityFilter, ActivityType.OLDER_FEED);
+    ListActivitiesKey listKey = new ListActivitiesKey(key, 0, limit);
+
+    //
+    ListActivitiesData keys = activitiesCache.get(
+        new ServiceContext<ListActivitiesData>() {
+          public ListActivitiesData execute() {
+            List<ExoSocialActivity> got = storage.getOlderOnActivityFeed(ownerIdentity, activityFilter, limit);
+            return buildIds(got);
+          }
+        },
+        listKey);
+
+    //
+    return buildActivities(keys);
+  }
+
+  public int getNumberOfOlderOnActivityFeed(final Identity ownerIdentity, final ActivityFilter activityFilter) {
+    //
+    ActivityCountKey key =
+        new ActivityCountKey(new IdentityKey(ownerIdentity), activityFilter, ActivityType.OLDER_FEED);
+
+    //
+    return activitiesCountCache.get(
+        new ServiceContext<IntegerData>() {
+          public IntegerData execute() {
+            return new IntegerData(storage.getNumberOfOlderOnActivityFeed(ownerIdentity, activityFilter));
+          }
+        },
+        key)
+        .build();
+
+  }
+
+  public List<ExoSocialActivity> getNewerComments(final ExoSocialActivity existingActivity,
+                                                  final ActivityFilter activityFilter,
+                                                  final int limit) {
+    //
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(new Identity(existingActivity.getId())), activityFilter, ActivityType.NEWER_COMMENT);
+    ListActivitiesKey listKey = new ListActivitiesKey(key, 0, limit);
+
+    //
+    ListActivitiesData keys = activitiesCache.get(
+        new ServiceContext<ListActivitiesData>() {
+          public ListActivitiesData execute() {
+            List<ExoSocialActivity> got = storage.getNewerComments(existingActivity, activityFilter, limit);
+            return buildIds(got);
+          }
+        },
+        listKey);
+
+    //
+    return buildActivities(keys);
+  }
+
+  public int getNumberOfNewerComments(final ExoSocialActivity existingActivity,
+                                      final ActivityFilter activityFilter) {
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(new Identity(existingActivity.getId())),
+                                                activityFilter,
+                                                ActivityType.NEWER_COMMENT);
+
+    return activitiesCountCache.get(new ServiceContext<IntegerData>() {
+      public IntegerData execute() {
+        return new IntegerData(storage.getNumberOfNewerComments(existingActivity, activityFilter));
+      }
+    }, key).build();
+  }
+
+  public List<ExoSocialActivity> getOlderComments(final ExoSocialActivity existingActivity,
+                                                  final ActivityFilter activityFilter,
+                                                  final int limit) {
+    //
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(new Identity(existingActivity.getId())), activityFilter, ActivityType.OLDER_COMMENT);
+    ListActivitiesKey listKey = new ListActivitiesKey(key, 0, limit);
+
+    //
+    ListActivitiesData keys = activitiesCache.get(
+        new ServiceContext<ListActivitiesData>() {
+          public ListActivitiesData execute() {
+            List<ExoSocialActivity> got = storage.getOlderComments(existingActivity, activityFilter, limit);
+            return buildIds(got);
+          }
+        },
+        listKey);
+
+    //
+    return buildActivities(keys);
+  }
+
+  public int getNumberOfOlderComments(final ExoSocialActivity existingActivity,
+                                      final ActivityFilter activityFilter) {
+    ActivityCountKey key = new ActivityCountKey(new IdentityKey(new Identity(existingActivity.getId())),
+                                                activityFilter,
+                                                ActivityType.OLDER_COMMENT);
+
+    return activitiesCountCache.get(new ServiceContext<IntegerData>() {
+      public IntegerData execute() {
+        return new IntegerData(storage.getNumberOfOlderComments(existingActivity, activityFilter));
+      }
+    }, key).build();
   }
   
 }

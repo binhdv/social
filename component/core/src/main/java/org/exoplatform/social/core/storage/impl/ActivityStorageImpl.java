@@ -37,6 +37,7 @@ import org.chromattic.api.query.QueryResult;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.ActivityProcessor;
+import org.exoplatform.social.common.ActivityFilter;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.activity.model.ActivityStreamImpl;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -1230,6 +1231,132 @@ public class ActivityStorageImpl extends AbstractStorage implements ActivityStor
    */
   public void setStorage(final ActivityStorage storage) {
     this.activityStorage = storage;
+  }
+
+  public List<ExoSocialActivity> getNewerOnActivityFeed(Identity ownerIdentity,
+                                                        ActivityFilter activityFilter,
+                                                        int limit) {
+    List<Identity> identities = new ArrayList<Identity>();
+
+    identities.addAll(relationshipStorage.getConnections(ownerIdentity));
+    identities.addAll(getSpacesId(ownerIdentity));
+    identities.add(ownerIdentity);
+
+    //
+    return getActivitiesOfIdentities(identities, TimestampType.NEWER.from(activityFilter.getPostedTime()), 0, limit);
+  }
+
+  public int getNumberOfNewerOnActivityFeed(Identity ownerIdentity, ActivityFilter activityFilter) {
+    //
+    List<Identity> identities = new ArrayList<Identity>();
+
+    identities.addAll(relationshipStorage.getConnections(ownerIdentity));
+    identities.addAll(getSpacesId(ownerIdentity));
+    identities.add(ownerIdentity);
+
+    //
+    return getActivitiesOfIdentitiesQuery(identities, TimestampType.NEWER.from(activityFilter.getPostedTime()))
+          .objects().size();
+
+  }
+
+  public List<ExoSocialActivity> getOlderOnActivityFeed(Identity ownerIdentity,
+                                                        ActivityFilter activityFilter,
+                                                        int limit) {
+    //
+    List<Identity> identities = new ArrayList<Identity>();
+
+    identities.addAll(relationshipStorage.getConnections(ownerIdentity));
+    identities.addAll(getSpacesId(ownerIdentity));
+    identities.add(ownerIdentity);
+
+    ///
+    return getActivitiesOfIdentities(identities, TimestampType.OLDER.from(activityFilter.getPostedTime()), 0, limit);
+  }
+
+  public int getNumberOfOlderOnActivityFeed(Identity ownerIdentity, ActivityFilter activityFilter) {
+    //
+    List<Identity> identities = new ArrayList<Identity>();
+
+    identities.addAll(relationshipStorage.getConnections(ownerIdentity));
+    identities.addAll(getSpacesId(ownerIdentity));
+    identities.add(ownerIdentity);
+
+    //
+    return getActivitiesOfIdentitiesQuery(identities, TimestampType.OLDER.from(activityFilter.getPostedTime()))
+          .objects().size();
+
+  }
+
+  public List<ExoSocialActivity> getNewerComments(ExoSocialActivity existingActivity,
+                                                  ActivityFilter activityFilter,
+                                                  int limit) {
+    List<ExoSocialActivity> activities = new ArrayList<ExoSocialActivity>();
+
+    List<String> commentIds = Arrays.asList(getStorage().getActivity(existingActivity.getId())
+                                                        .getReplyToId());
+    int nb = 0;
+    for (String commentId : commentIds) {
+      ExoSocialActivity c = getStorage().getActivity(commentId);
+      if (nb == limit)
+        return activities;
+      if (activityFilter.getPostedTime() < c.getPostedTime()) {
+        activities.add(c);
+        ++nb;
+      }
+    }
+
+    return activities;
+  }
+
+  public int getNumberOfNewerComments(ExoSocialActivity existingActivity,
+                                      ActivityFilter activityFilter) {
+    List<String> commentIds = Arrays.asList(getStorage().getActivity(existingActivity.getId()).getReplyToId());
+    
+    //
+    int nb = 0;
+    for (String commentId : commentIds) {
+      ExoSocialActivity c = getStorage().getActivity(commentId);
+      if (activityFilter.getPostedTime() < c.getPostedTime()) {
+        ++nb;
+      }
+    }
+    return nb;
+  }
+
+  public List<ExoSocialActivity> getOlderComments(ExoSocialActivity existingActivity,
+                                                  ActivityFilter activityFilter,
+                                                  int limit) {
+    List<ExoSocialActivity> activities = new ArrayList<ExoSocialActivity>();
+
+    List<String> commentIds = Arrays.asList(getStorage().getActivity(existingActivity.getId())
+                                                        .getReplyToId());
+    int nb = 0;
+    for (String commentId : commentIds) {
+      ExoSocialActivity c = getStorage().getActivity(commentId);
+      if (activityFilter.getPostedTime() <= c.getPostedTime() || nb == limit) {
+        return activities;
+      } else {
+        activities.add(c);
+      }
+      ++nb;
+    }
+
+    return activities;
+  }
+
+  public int getNumberOfOlderComments(ExoSocialActivity existingActivity,
+                                      ActivityFilter activityFilter) {
+    List<String> commentIds = Arrays.asList(getStorage().getActivity(existingActivity.getId()).getReplyToId());
+    int nb = 0;
+    for (String commentId : commentIds) {
+      ExoSocialActivity c = getStorage().getActivity(commentId);
+      if (activityFilter.getPostedTime() <= c.getPostedTime()) {
+        return nb;
+      }
+      nb++;
+    }
+    return nb;
   }
 
 }
