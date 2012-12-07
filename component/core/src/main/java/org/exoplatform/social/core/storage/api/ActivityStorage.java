@@ -548,5 +548,7 @@ public interface ActivityStorage {
                                                ExoSocialActivity baseActivity);
 
   public int getNumberOfNewerOnSpaceActivities(Identity spaceIdentity, Long sinceTime);
+
+  public int getNumberOfNewerComments(ExoSocialActivity existingActivity, Long sinceTime);
   
 }

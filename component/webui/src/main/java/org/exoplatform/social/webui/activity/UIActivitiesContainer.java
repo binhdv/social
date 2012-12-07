@@ -17,6 +17,8 @@
 package org.exoplatform.social.webui.activity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.portlet.PortletRequest;
@@ -27,9 +29,13 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.webui.container.UIContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivitiesRealtimeListAccess;
+import org.exoplatform.social.core.activity.CommentsRealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.webui.Utils;
 import org.exoplatform.social.webui.composer.UIComposer.PostContext;
 import org.exoplatform.web.application.JavascriptManager;
 import org.exoplatform.webui.application.WebuiRequestContext;
@@ -167,9 +173,21 @@ public class UIActivitiesContainer extends UIContainer {
     try {
       UIActivitiesLoader uiActivitiesLoader = this.getAncestorOfType(UIActivitiesLoader.class);
       ListAccess<ExoSocialActivity> activitiesListAccess = uiActivitiesLoader.getActivityListAccess();
+      
+      ActivityManager activityManager = Utils.getActivityManager();
+      List<ExoSocialActivity> activitiesList = Arrays.asList(activitiesListAccess.load(0, activitiesListAccess.getSize()));
+      int numberActivitiesWithNewComments = 0;
       String lastUpdatedTime = getStreamInfosCookie();
-      return ((ActivitiesRealtimeListAccess) activitiesListAccess).getNumberOfNewer(Long.parseLong(lastUpdatedTime));
+      for (ExoSocialActivity activity : activitiesList) {
+        ListAccess<ExoSocialActivity> listComments = activityManager.getCommentsWithListAccess(activity);
+        if ((activity.getPostedTime() < Long.parseLong(lastUpdatedTime)) 
+            && (((CommentsRealtimeListAccess) listComments).getNumberOfNewer(Long.parseLong(lastUpdatedTime)) > 0)) {
+          numberActivitiesWithNewComments++;
+        }
+      }
+      return ((ActivitiesRealtimeListAccess) activitiesListAccess).getNumberOfNewer(Long.parseLong(lastUpdatedTime)) + numberActivitiesWithNewComments;
     } catch(Exception e) {
+      e.printStackTrace();
       return 0;
     }
   }
@@ -185,11 +203,11 @@ public class UIActivitiesContainer extends UIContainer {
   }
 
   public String getStreamInfosCookie() {
+    String cookieName = ownerName + "_" + selectedDisplayMode;
     try {
       WebuiRequestContext webuiRequestContext = WebuiRequestContext.getCurrentInstance();
       PortletRequest request = webuiRequestContext.getRequest();
       Cookie[] cookies = request.getCookies();
-      String cookieName = ownerName + "_" + selectedDisplayMode;
       for (Cookie cookie : cookies) {
         if (cookieName.equals(cookie.getName())) {
           return cookie.getValue();
@@ -198,6 +216,8 @@ public class UIActivitiesContainer extends UIContainer {
     } catch(Exception e) {
       LOG.error("Failed to get user stream infos cookie.");
     }
-    return null;
+    Long time = GregorianCalendar.getInstance().getTimeInMillis();
+    storeStreamInfosCookie(cookieName, time);
+    return String.valueOf(time);
   }
 }

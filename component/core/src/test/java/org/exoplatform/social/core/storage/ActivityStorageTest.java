@@ -1965,4 +1965,55 @@ public class ActivityStorageTest extends AbstractCoreTest {
     spaceService.saveSpace(space, true);
     return space;
   }
+  
+  /**
+   * Test {@link ActivityStorage#getNumberOfNewerComments(ExoSocialActivity, ExoSocialActivity)}
+   * 
+   * @since 1.2.0-Beta3
+   */
+  @MaxQueryNumber(764)
+  public void testGetNumberOfNewerCommentsByTime() {
+    int totalNumber = 10;
+    String activityTitle = "activity title";
+    
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(rootIdentity.getId());
+    activityStorage.saveActivity(rootIdentity, activity);
+    tearDownActivityList.add(activity);
+    
+    for (int i = 0; i < totalNumber; i ++) {
+      //John comments on Root's activity
+      ExoSocialActivity comment = new ExoSocialActivityImpl();
+      comment.setTitle("john comment " + i);
+      comment.setUserId(johnIdentity.getId());
+      activityStorage.saveComment(activity, comment);
+    }
+    
+    for (int i = 0; i < totalNumber; i ++) {
+      //John comments on Root's activity
+      ExoSocialActivity comment = new ExoSocialActivityImpl();
+      comment.setTitle("demo comment " + i);
+      comment.setUserId(demoIdentity.getId());
+      activityStorage.saveComment(activity, comment);
+    }
+    
+    List<ExoSocialActivity> comments = activityStorage.getComments(activity, 0, 10);
+    assertNotNull("comments must not be null", comments);
+    assertEquals("comments.size() must return: 10", 10, comments.size());
+    
+    ExoSocialActivity latestComment = comments.get(0);
+    
+    int number = activityStorage.getNumberOfNewerComments(activity, latestComment.getPostedTime());
+    assertEquals("number must be: 19", 19, number);
+    
+    ExoSocialActivity baseComment = activityStorage.getComments(activity, 0, 20).get(10);
+    Long time = baseComment.getPostedTime();
+    number = activityStorage.getNumberOfNewerComments(activity, time);
+    assertEquals("number must be: 9", 9, number);
+    
+    time = activityStorage.getComments(activity, 0, 20).get(19).getPostedTime();
+    number = activityStorage.getNumberOfNewerComments(activity, time);
+    assertEquals("number must be: 0", 0, number);
+  }
  }

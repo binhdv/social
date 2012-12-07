@@ -1496,4 +1496,17 @@ public class ActivityStorageImpl extends AbstractStorage implements ActivityStor
     //
     return getActivitiesOfIdentitiesQuery(ActivityBuilderWhere.ACTIVITY_SPACE_BUILDER.owners(spaceIdentity), filter).objects().size();
   }
+
+  @Override
+  public int getNumberOfNewerComments(ExoSocialActivity existingActivity, Long sinceTime) {
+    List<String> commentIds = Arrays.asList(getStorage().getActivity(existingActivity.getId()).getReplyToId());
+    int nb = 0;
+    for (String commentId : commentIds) {
+      ExoSocialActivity c = getStorage().getActivity(commentId);
+      if (sinceTime < c.getPostedTime()) {
+        ++nb;
+      }
+    }
+    return nb;
+  }
 }
