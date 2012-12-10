@@ -187,7 +187,6 @@ public class UIActivitiesContainer extends UIContainer {
       }
       return ((ActivitiesRealtimeListAccess) activitiesListAccess).getNumberOfNewer(Long.parseLong(lastUpdatedTime)) + numberActivitiesWithNewComments;
     } catch(Exception e) {
-      e.printStackTrace();
       return 0;
     }
   }
@@ -196,7 +195,8 @@ public class UIActivitiesContainer extends UIContainer {
     try {
       WebuiRequestContext webuiRequestContext = WebuiRequestContext.getCurrentInstance();
       JavascriptManager jsManager = webuiRequestContext.getJavascriptManager();
-      jsManager.addJavascript(";document.cookie = '" + name + "=" + (value != null ? value.toString() : null) + "';");
+      //jsManager.addJavascript(";document.cookie = '" + name + "=" + (value != null ? value.toString() : null) + "';");
+      jsManager.addJavascript(";eXo.core.Browser.setCookie('" + name + "', '" + value + "', 1);" );
     } catch(Exception e) {
       LOG.error("Failed to store user stream infos cookie.");
     }

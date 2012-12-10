@@ -1968,10 +1968,8 @@ public class ActivityStorageTest extends AbstractCoreTest {
   
   /**
    * Test {@link ActivityStorage#getNumberOfNewerComments(ExoSocialActivity, ExoSocialActivity)}
-   * 
-   * @since 1.2.0-Beta3
    */
-  @MaxQueryNumber(764)
+  @MaxQueryNumber(1000)
   public void testGetNumberOfNewerCommentsByTime() {
     int totalNumber = 10;
     String activityTitle = "activity title";
@@ -1991,7 +1989,7 @@ public class ActivityStorageTest extends AbstractCoreTest {
     }
     
     for (int i = 0; i < totalNumber; i ++) {
-      //John comments on Root's activity
+      //Demo comments on Root's activity
       ExoSocialActivity comment = new ExoSocialActivityImpl();
       comment.setTitle("demo comment " + i);
       comment.setUserId(demoIdentity.getId());
@@ -2012,8 +2010,28 @@ public class ActivityStorageTest extends AbstractCoreTest {
     number = activityStorage.getNumberOfNewerComments(activity, time);
     assertEquals("number must be: 9", 9, number);
     
-    time = activityStorage.getComments(activity, 0, 20).get(19).getPostedTime();
+    //We remove the baseComment and make sure that it don't have any exception
+    activityStorage.deleteComment(activity.getId(), baseComment.getId());
     number = activityStorage.getNumberOfNewerComments(activity, time);
-    assertEquals("number must be: 0", 0, number);
+    assertEquals("number must be: 9", 9, number);
+
+    //Mary add new comment
+    ExoSocialActivity commentMary = new ExoSocialActivityImpl();
+    commentMary.setTitle("Mary comment ");
+    commentMary.setUserId(maryIdentity.getId());
+    activityStorage.saveComment(activity, commentMary);
+    
+    number = activityStorage.getNumberOfNewerComments(activity, time);
+    assertEquals("number must be: 10", 10, number);
+    
+    //Mary remove commentMary and add anotherComment, the NumberOfNewerComments don't change
+    activityStorage.deleteComment(activity.getId(), commentMary.getId());
+    ExoSocialActivity anotherComment = new ExoSocialActivityImpl();
+    anotherComment.setTitle("Mary anotherComment ");
+    anotherComment.setUserId(maryIdentity.getId());
+    activityStorage.saveComment(activity, anotherComment);
+    
+    number = activityStorage.getNumberOfNewerComments(activity, time);
+    assertEquals("number must be: 10", 10, number);
   }
  }

@@ -35,7 +35,8 @@ var UIActivityUpdates = {
       if (isScrolledIntoView()) {
         $('#UIActivitiesLoader').find('.UpdatedActivity').removeClass('UpdatedActivity');
         $('#numberInfo').html('No');
-        document.cookie = UIActivityUpdates.cookieName + "=" + UIActivityUpdates.cookieValue;
+        //document.cookie = UIActivityUpdates.cookieName + "=" + UIActivityUpdates.cookieValue;
+        eXo.core.Browser.setCookie(UIActivityUpdates.cookieName, UIActivityUpdates.cookieValue, 1);
         $(window).off('scroll');
       }
     });
