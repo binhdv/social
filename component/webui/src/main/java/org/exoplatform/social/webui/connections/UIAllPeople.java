@@ -132,6 +132,7 @@ public class UIAllPeople extends UIContainer {
    * @throws Exception
    */
   public UIAllPeople() throws Exception {
+    addChild(UIUpdateUserRelationship.class, null, null);
     uiProfileUserSearch = addChild(UIProfileUserSearch.class, null, null);
     setHasPeopleTab(true);
     uiProfileUserSearch.setHasConnectionLink(false);
@@ -348,7 +349,12 @@ public class UIAllPeople extends UIContainer {
       }
       
       Utils.getRelationshipManager().inviteToConnect(invitingIdentity, invitedIdentity);
-      event.getRequestContext().addUIComponentToUpdateByAjax(uiAllPeople);
+      //
+      relationship = Utils.getRelationshipManager().get(invitingIdentity, invitedIdentity);
+      UIUpdateUserRelationship updateUserRelationship = uiAllPeople.getChild(UIUpdateUserRelationship.class);
+      updateUserRelationship.setIdentity(invitedIdentity).setRelationship(relationship);
+
+      event.getRequestContext().addUIComponentToUpdateByAjax(updateUserRelationship);
     }
   }
 
@@ -374,8 +380,12 @@ public class UIAllPeople extends UIContainer {
       }
       
       Utils.getRelationshipManager().confirm(invitedIdentity, invitingIdentity);
-      
-      event.getRequestContext().addUIComponentToUpdateByAjax(uiAllPeople);
+      //
+      relationship = Utils.getRelationshipManager().get(invitingIdentity, invitedIdentity);
+      UIUpdateUserRelationship updateUserRelationship = uiAllPeople.getChild(UIUpdateUserRelationship.class);
+      updateUserRelationship.setIdentity(invitedIdentity).setRelationship(relationship);
+
+      event.getRequestContext().addUIComponentToUpdateByAjax(updateUserRelationship);
     }
   }
 
@@ -405,8 +415,11 @@ public class UIAllPeople extends UIContainer {
       } else {
         Utils.getRelationshipManager().deny(inviIdentityIdentity, invitingIdentity);
       }
-      
-      event.getRequestContext().addUIComponentToUpdateByAjax(uiAllPeople);
+      //
+      UIUpdateUserRelationship updateUserRelationship = uiAllPeople.getChild(UIUpdateUserRelationship.class);
+      updateUserRelationship.setIdentity(inviIdentityIdentity).setRelationship(null);
+
+      event.getRequestContext().addUIComponentToUpdateByAjax(updateUserRelationship);
     }
   }
 
