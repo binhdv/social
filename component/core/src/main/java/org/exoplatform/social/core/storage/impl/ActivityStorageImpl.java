@@ -75,7 +75,6 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
-import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
@@ -104,7 +103,7 @@ public class ActivityStorageImpl extends AbstractStorage implements ActivityStor
   private final RelationshipStorage relationshipStorage;
   private final IdentityStorage identityStorage;
   private final SpaceStorage spaceStorage;
-  private final ActivityStreamStorage streamStorage;
+  private ActivityStreamStorage streamStorage;
   //sets value to tell this storage to inject Streams or not
   private boolean mustInjectStreams = true;
 
@@ -119,6 +118,26 @@ public class ActivityStorageImpl extends AbstractStorage implements ActivityStor
     this.spaceStorage = spaceStorage;
     this.streamStorage = streamStorage;
     this.activityProcessors = new TreeSet<ActivityProcessor>(processorComparator());
+  }
+  
+  public ActivityStorageImpl(
+       final RelationshipStorage relationshipStorage,
+       final IdentityStorage identityStorage,
+       final SpaceStorage spaceStorage) {
+
+     this.relationshipStorage = relationshipStorage;
+     this.identityStorage = identityStorage;
+     this.spaceStorage = spaceStorage;
+     this.streamStorage = getStreamStorage();
+     this.activityProcessors = new TreeSet<ActivityProcessor>(processorComparator());
+   }
+  
+  private ActivityStreamStorage getStreamStorage() {
+    if (streamStorage == null) {
+      streamStorage = (ActivityStreamStorage) PortalContainer.getInstance().getComponentInstanceOfType(ActivityStreamStorage.class);
+    }
+
+    return streamStorage;
   }
   
   /**
@@ -2956,5 +2975,12 @@ public class ActivityStorageImpl extends AbstractStorage implements ActivityStor
   
     //
     return getActivitiesOfIdentitiesQuery(ActivityBuilderWhere.simple().owners(spaceList), filter).objects().size();
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public ExoSocialActivity getComment(String commentId) throws ActivityStorageException {
+    return getActivity(commentId);
   }
 }
