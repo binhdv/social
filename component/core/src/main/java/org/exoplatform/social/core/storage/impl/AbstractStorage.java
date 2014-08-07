@@ -25,10 +25,9 @@ import javax.jcr.query.QueryManager;
 
 import org.chromattic.api.ChromatticSession;
 import org.chromattic.api.Status;
-import org.chromattic.core.api.ChromatticSessionImpl;
 import org.exoplatform.commons.chromattic.ChromatticManager;
-import org.exoplatform.commons.chromattic.Synchronization;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -41,7 +40,7 @@ import org.exoplatform.social.core.storage.exception.NodeNotFoundException;
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
  * @version $Revision$
  */
-public abstract class AbstractStorage {
+public abstract class AbstractStorage extends BaseComponentPlugin {
   
   private static final Log LOG = ExoLogger.getLogger(AbstractStorage.class);
 
