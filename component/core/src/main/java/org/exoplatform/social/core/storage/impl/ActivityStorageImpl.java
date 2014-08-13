@@ -41,6 +41,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.shindig.gadgets.UnsupportedFeatureException;
 import org.chromattic.api.ChromatticException;
 import org.chromattic.api.query.Ordering;
 import org.chromattic.api.query.Query;
@@ -48,6 +49,7 @@ import org.chromattic.api.query.QueryBuilder;
 import org.chromattic.api.query.QueryResult;
 import org.chromattic.core.api.ChromatticSessionImpl;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.ActivityProcessor;
@@ -2982,5 +2984,10 @@ public class ActivityStorageImpl extends AbstractStorage implements ActivityStor
    */
   public ExoSocialActivity getComment(String commentId) throws ActivityStorageException {
     return getActivity(commentId);
+  }
+
+  @Override
+  public void addPlugin(BaseComponentPlugin baseComponent) {
+    //unsupported this method now
   }
 }
