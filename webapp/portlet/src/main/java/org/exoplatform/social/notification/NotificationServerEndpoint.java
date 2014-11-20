@@ -26,9 +26,13 @@ import org.exoplatform.services.log.Log;
 @ServerEndpoint(value = "/notify/{remoteId}", encoders = { MessageEncoder.class }, decoders = { MessageDecoder.class })
 public class NotificationServerEndpoint {
   
-  private static final Log          LOG      = ExoLogger.getLogger(NotificationServerEndpoint.class);
+  private static final Log          LOG              = ExoLogger.getLogger(NotificationServerEndpoint.class);
 
-  private static final Set<Session> sessions = Collections.synchronizedSet(new HashSet<Session>());
+  private static final Set<Session> sessions         = Collections.synchronizedSet(new HashSet<Session>());
+
+  private static final int          MAX_TEXT_MESSAGE = 32768;
+
+  private static final int          MAX_IDLE_TIMEOUT = 300000;
 
   public NotificationServerEndpoint() {
   }
@@ -36,7 +40,8 @@ public class NotificationServerEndpoint {
   @OnOpen
   public void onOpen (Session session, @PathParam("remoteId") final String remoteId) {
     session.getUserProperties().put("remoteId", remoteId);
-    session.setMaxTextMessageBufferSize(32768);
+    session.setMaxTextMessageBufferSize(MAX_TEXT_MESSAGE);
+    //session.setMaxIdleTimeout(MAX_IDLE_TIMEOUT);
     sessions.add(session);
     System.out.println("Open session : " + session.getId() + " of user " + remoteId);
   }

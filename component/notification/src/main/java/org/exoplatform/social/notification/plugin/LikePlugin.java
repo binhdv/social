@@ -150,4 +150,14 @@ public class LikePlugin extends AbstractNotificationPlugin {
     return true;
   }
 
+  @Override
+  protected String makeWebNotif(NotificationContext ctx) {
+    NotificationInfo notification = ctx.getNotificationInfo();
+    
+    String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+    ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+    Identity identity = Utils.getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, notification.getValueOwnerParameter("likersId"), true);
+    return identity.getProfile().getFullName() + " like your activity : " + activity.getTitle();
+  }
+
 }

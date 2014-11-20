@@ -142,4 +142,20 @@ public class PostActivitySpaceStreamPlugin extends AbstractNotificationPlugin {
     return false;
   }
 
+  @Override
+  protected String makeWebNotif(NotificationContext ctx) {
+    NotificationInfo notification = ctx.getNotificationInfo();
+    
+    String language = getLanguage(notification);
+    TemplateContext templateContext = new TemplateContext(notification.getKey().getId(), language);
+    SocialNotificationUtils.addFooterAndFirstName(notification.getTo(), templateContext);
+
+    String activityId = notification.getValueOwnerParameter(SocialNotificationUtils.ACTIVITY_ID.getKey());
+    ExoSocialActivity activity = Utils.getActivityManager().getActivity(activityId);
+    Identity identity = Utils.getIdentityManager().getIdentity(activity.getPosterId(), true);
+    
+    Identity spaceIdentity = Utils.getIdentityManager().getOrCreateIdentity(SpaceIdentityProvider.NAME, activity.getStreamOwner(), true);
+    return identity.getProfile().getFullName() + " posts an activity in space " + spaceIdentity.getRemoteId() + " : " + activity.getTitle();
+  }
+
 }

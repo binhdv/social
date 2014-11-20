@@ -77,5 +77,10 @@ public class DefaultActivityChildPlugin extends AbstractNotificationChildPlugin 
   public boolean isValid(NotificationContext ctx) {
     return false;
   }
+  @Override
+  protected String makeWebNotif(NotificationContext ctx) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

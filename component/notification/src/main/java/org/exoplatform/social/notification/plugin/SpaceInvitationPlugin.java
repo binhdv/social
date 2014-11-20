@@ -115,4 +115,12 @@ public class SpaceInvitationPlugin extends AbstractNotificationPlugin {
     return true;
   }
 
+  @Override
+  protected String makeWebNotif(NotificationContext ctx) {
+    NotificationInfo notification = ctx.getNotificationInfo();
+    String spaceId = notification.getValueOwnerParameter(SocialNotificationUtils.SPACE_ID.getKey());
+    Space space = Utils.getSpaceService().getSpaceById(spaceId);
+    return "You have received an invitation to joint space " + space.getDisplayName();
+  }
+
 }

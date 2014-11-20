@@ -110,4 +110,10 @@ public class LinkActivityChildPlugin extends AbstractNotificationChildPlugin {
     this.isEmbedLink = isEmbedLink;
   }
 
+  @Override
+  protected String makeWebNotif(NotificationContext ctx) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

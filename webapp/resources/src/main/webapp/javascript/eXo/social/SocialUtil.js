@@ -162,25 +162,21 @@
 	 	var socket = new WebSocket(socketUrl);
 	 	socket.onmessage = function(evt) {
 	 		var obj = JSON.parse(evt.data);
-	 		SocialUtils.updateNotificationList(comId, obj.message);
+	 		SocialUtils.updateNotificationList(comId, obj.message, obj.notifId);
 		}
      },
-     updateNotificationList : function(parentId, message) { 
-         var msgEl = $('#feedbackmessageInline');
+     updateNotificationList : function(parentId, message, notifId) { 
+       var msgEl = $('<div id="feedbackMessageInline">' +
+          	   		'  <span class="message' + notifId + '"></span>' +
+  					'</div>');
 
-         if(msgEl.length === 0) {
-           msgEl = $('<div id="feedbackMessageInline">' +
-                     '  <span class="message"></span>' +
-                     '</div>');
-           msgEl.prependTo($('#'+ parentId));
-         }
+       msgEl.prependTo($('#'+ parentId));
 
-         if($(window).scrollTop() > msgEl.offset().top) {
-           msgEl[0].scrollIntoView(true);
-         }
-         msgEl.stop().hide().find("span.message").html(message);
-         msgEl.show('fast').delay(450000).hide('slow');
-       },
+       if($(window).scrollTop() > msgEl.offset().top) {
+	     msgEl[0].scrollIntoView(true);
+       }
+       msgEl.find("span.message" + notifId).html(message);
+     },
      
      feedbackMessageInline : function(parentId, message) { 
        message = message.replace("${simpleQuote}", "'");

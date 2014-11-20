@@ -190,7 +190,6 @@
       <groupId>org.apache.tomcat</groupId>
       <artifactId>tomcat7-websocket</artifactId>
       <version>7.0.55</version>
-      <scope>runtime</scope>
       <exclusions>
         <exclusion>
           <groupId>org.apache.tomcat</groupId>
@@ -232,17 +231,6 @@
       <version>1.0</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>javax.json</groupId>
-	  <artifactId>javax.json-api</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-    <groupId>org.glassfish</groupId>
-    <artifactId>javax.json</artifactId>
-    <version>1.0.4</version>
-</dependency>
     
   </dependencies>
   <build>
