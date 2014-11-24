@@ -449,7 +449,7 @@
           <artifactId>maven-war-plugin</artifactId>
           <configuration>
             <!-- Don't include libraries into Web Archives -->
-            <packagingExcludes>%regex[WEB-INF/lib/(?!.*websocket).*.jar],**/less/**</packagingExcludes>
+            <packagingExcludes>WEB-INF/lib/*.jar,**/less/**</packagingExcludes>
           </configuration>
         </plugin>
       </plugins>

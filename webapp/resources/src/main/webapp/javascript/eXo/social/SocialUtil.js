@@ -158,16 +158,22 @@
      },
      
      alertEvent : function(comId) {
-	 	var socketUrl = 'ws://' + location.hostname + ':8080/social-portlet/notify/' + window.eXo.env.portal.userName;
+	 	var socketUrl = 'ws://' + location.hostname + ':8181/notify';
 	 	var socket = new WebSocket(socketUrl);
-	 	socket.onmessage = function(evt) {
-	 		var obj = JSON.parse(evt.data);
-	 		SocialUtils.updateNotificationList(comId, obj.message, obj.notifId);
-		}
+	 	var currentUser = window.eXo.env.portal.userName;
+	 	socket.onmessage = function(event) {
+            alert("Received data from websocket: " + event.data);
+        }
+        socket.onopen = function(event) {
+        	socket.send('{"action":"subscribe","identifier":"' + currentUser + '"}');
+        };
+        socket.onclose = function(event) {
+        	socket.send('{"action":"unsubscribe","identifier":"' + currentUser + '"}');
+        };
      },
-     updateNotificationList : function(parentId, message, notifId) { 
+     updateNotificationList : function(parentId, message) { 
        var msgEl = $('<div id="feedbackMessageInline">' +
-          	   		'  <span class="message' + notifId + '"></span>' +
+          	   		'  <span class="message"></span>' +
   					'</div>');
 
        msgEl.prependTo($('#'+ parentId));
@@ -175,7 +181,7 @@
        if($(window).scrollTop() > msgEl.offset().top) {
 	     msgEl[0].scrollIntoView(true);
        }
-       msgEl.find("span.message" + notifId).html(message);
+       msgEl.find("span.message").html(message);
      },
      
      feedbackMessageInline : function(parentId, message) { 
